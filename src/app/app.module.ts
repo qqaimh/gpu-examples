@@ -3,10 +3,12 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { GpuHeadComponent } from './gpu-head/gpu-head.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    GpuHeadComponent,
   ],
   imports: [
     BrowserModule,

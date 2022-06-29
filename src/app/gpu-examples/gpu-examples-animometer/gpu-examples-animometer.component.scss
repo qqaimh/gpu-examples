@@ -1,0 +1,13 @@
+:host {
+    flex: 1;
+    display: flex;
+}
+
+canvas {
+    flex: 1;
+}
+
+.tools {
+    display: flex;
+    flex-direction: column;
+}

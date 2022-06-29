@@ -1,1 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+}
+
+// style webkit scrollbar
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    outline: 0;
+    background-color: transparentize(#000000, 0.8);
+    border-radius: 3px;
+  
+    &:hover {
+        background-color: transparentize(#000000, 0.6)
+    }    
+}
+
+
+.active {
+    color: red;
+}

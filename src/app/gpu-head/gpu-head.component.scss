@@ -1,0 +1,22 @@
+.head {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  background-color: greenyellow;
+
+  .name {
+    width: 88px; 
+    padding-left: 16px;
+  }
+
+  .routers {
+    flex: 1;
+    display: flex;
+
+    a {
+      margin-right: 16px;
+    }
+  }
+
+}
+  
