@@ -46,6 +46,7 @@ export class GpuExamplesInstancedCubeComponent implements OnInit {
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     // Create a vertex buffer from the cube data.

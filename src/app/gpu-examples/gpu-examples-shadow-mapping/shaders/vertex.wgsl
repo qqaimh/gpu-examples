@@ -1,22 +1,22 @@
 struct Scene {
-  lightViewProjMatrix : mat4x4<f32>;
-  cameraViewProjMatrix : mat4x4<f32>;
-  lightPos : vec3<f32>;
+  lightViewProjMatrix: mat4x4<f32>,
+  cameraViewProjMatrix: mat4x4<f32>,
+  lightPos: vec3<f32>,
 };
 
 struct Model {
-  modelMatrix : mat4x4<f32>;
+  modelMatrix: mat4x4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> scene : Scene;
 @group(1) @binding(0) var<uniform> model : Model;
 
 struct VertexOutput {
-  @location(0) shadowPos : vec3<f32>;
-  @location(1) fragPos : vec3<f32>;
-  @location(2) fragNorm : vec3<f32>;
+  @location(0) shadowPos: vec3<f32>,
+  @location(1) fragPos: vec3<f32>,
+  @location(2) fragNorm: vec3<f32>,
 
-  @builtin(position) Position : vec4<f32>;
+  @builtin(position) Position: vec4<f32>,
 };
 
 @vertex

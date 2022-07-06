@@ -44,10 +44,11 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'opaque'
     });
 
     // Create a vertex buffer from the cube data.
-    const verticesBuffer = device.createBuffer({
+    const verticesBuffer: GPUBuffer = device.createBuffer({
       size: cubeVertexArray.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,

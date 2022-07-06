@@ -38,12 +38,13 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     const blurPipeline = device.createComputePipeline({
@@ -53,7 +54,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
         }),
         entryPoint: 'main',
       },
-      layout: undefined
+      layout: 'auto'
     });
 
     const fullscreenQuadPipeline = device.createRenderPipeline({
@@ -77,7 +78,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       primitive: {
         topology: 'triangle-list',
       },
-      layout: undefined
+      layout: 'auto'
     });
 
     const sampler = device.createSampler({
@@ -266,26 +267,26 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       computePass.setBindGroup(0, computeConstants);
 
       computePass.setBindGroup(1, computeBindGroup0);
-      computePass.dispatch(
+      computePass.dispatchWorkgroups(
         Math.ceil(srcWidth / blockDim),
         Math.ceil(srcHeight / batch[1])
       );
 
       computePass.setBindGroup(1, computeBindGroup1);
-      computePass.dispatch(
+      computePass.dispatchWorkgroups(
         Math.ceil(srcHeight / blockDim),
         Math.ceil(srcWidth / batch[1])
       );
 
       for (let i = 0; i < settings.iterations - 1; ++i) {
         computePass.setBindGroup(1, computeBindGroup2);
-        computePass.dispatch(
+        computePass.dispatchWorkgroups(
           Math.ceil(srcWidth / blockDim),
           Math.ceil(srcHeight / batch[1])
         );
 
         computePass.setBindGroup(1, computeBindGroup1);
-        computePass.dispatch(
+        computePass.dispatchWorkgroups(
           Math.ceil(srcHeight / blockDim),
           Math.ceil(srcWidth / batch[1])
         );

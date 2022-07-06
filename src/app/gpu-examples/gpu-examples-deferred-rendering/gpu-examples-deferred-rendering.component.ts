@@ -31,13 +31,14 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
     this.draw();
   }
 
-  // This example shows how to do deferred rendering with webgpu. Render geometry info to multiple targets in the gBuffers in the first pass. In this sample we have 3 gBuffers for positions, normals, and albedo. And then do the lighting in a second pass with per fragment data read from gBuffers so it's independent of scene complexity. We also update light position in a compute shader, where further operations like tile/cluster culling could happen.
+  // This example shows how to do deferred rendering with webgpu. Render geometry info to multiple targets in the gBuffers in the first pass. 
+  // In this sample we have 3 gBuffers for positions, normals, and albedo. And then do the lighting in a second pass with per fragment data read from gBuffers so it's independent of scene complexity. We also update light position in a compute shader, where further operations like tile/cluster culling could happen.
   async draw() {
     const adapter = await navigator.gpu.requestAdapter();
     const device = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
@@ -45,11 +46,12 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
     const aspect = presentationSize[0] / presentationSize[1];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'opaque'
     });
 
     // Create the model vertex buffer.
@@ -63,7 +65,6 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
     });
     const mapping = new Float32Array(vertexBuffer.getMappedRange());
     for (let i = 0; i < mesh.positions.length; ++i) {
-      console.log(3333, mesh.positions[i], mesh.normals[i])
       mapping.set(mesh.positions[i], kVertexStride * i);
       mapping.set(mesh.normals[i] ?? [0, 1, 0], kVertexStride * i + 3);
       mapping.set(mesh.uvs[i] ?? [0, 0], kVertexStride * i + 6);
@@ -86,12 +87,12 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
     }
 
     // GBuffer texture render targets
-    const gBufferTexture2DFloat = device.createTexture({
+    const gBufferTexture2DFloat: GPUTexture = device.createTexture({
       size: [...presentationSize, 2],
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
       format: 'rgba32float',
     });
-    const gBufferTextureAlbedo = device.createTexture({
+    const gBufferTextureAlbedo: GPUTexture = device.createTexture({
       size: presentationSize,
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
       format: 'bgra8unorm',
@@ -141,7 +142,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       cullMode: 'back',
     };
 
-    const writeGBuffersPipeline = device.createRenderPipeline({
+    const writeGBuffersPipeline: GPURenderPipeline = device.createRenderPipeline({
       vertex: {
         module: device.createShaderModule({
           code: vertexWriteGBuffers,
@@ -169,10 +170,10 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         format: 'depth24plus',
       },
       primitive,
-      layout: undefined
+      layout: 'auto'
     });
 
-    const gBufferTexturesBindGroupLayout = device.createBindGroupLayout({
+    const gBufferTexturesBindGroupLayout: GPUBindGroupLayout = device.createBindGroupLayout({
       entries: [
         {
           binding: 0,
@@ -198,7 +199,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       ],
     });
 
-    const lightsBufferBindGroupLayout = device.createBindGroupLayout({
+    const lightsBufferBindGroupLayout: GPUBindGroupLayout = device.createBindGroupLayout({
       entries: [
         {
           binding: 0,
@@ -217,7 +218,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       ],
     });
 
-    const canvasSizeUniformBindGroupLayout = device.createBindGroupLayout({
+    const canvasSizeUniformBindGroupLayout: GPUBindGroupLayout = device.createBindGroupLayout({
       entries: [
         {
           binding: 0,
@@ -490,7 +491,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         }),
         entryPoint: 'main',
       },
-      layout: undefined
+      layout: 'auto'
     });
     const lightsBufferBindGroup = device.createBindGroup({
       layout: lightsBufferBindGroupLayout,
@@ -635,7 +636,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         const lightPass = commandEncoder.beginComputePass();
         lightPass.setPipeline(lightUpdateComputePipeline);
         lightPass.setBindGroup(0, lightsBufferComputeBindGroup);
-        lightPass.dispatch(Math.ceil(kMaxNumLights / 64));
+        lightPass.dispatchWorkgroups(Math.ceil(kMaxNumLights / 64));
         lightPass.end();
       }
       {

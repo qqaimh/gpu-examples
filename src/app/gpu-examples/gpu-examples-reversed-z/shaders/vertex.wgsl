@@ -1,16 +1,16 @@
 struct Uniforms {
-  modelMatrix : array<mat4x4<f32>, 5>;
+  modelMatrix: array<mat4x4<f32>, 5>,
 };
 struct Camera {
-  viewProjectionMatrix : mat4x4<f32>;
+  viewProjectionMatrix: mat4x4<f32>,
 };
 
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;
 @binding(1) @group(0) var<uniform> camera : Camera;
 
 struct VertexOutput {
-  @builtin(position) Position : vec4<f32>;
-  @location(0) fragColor : vec4<f32>;
+  @builtin(position) Position: vec4<f32>,
+  @location(0) fragColor: vec4<f32>,
 };
 
 @vertex

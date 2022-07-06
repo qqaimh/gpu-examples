@@ -38,12 +38,13 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat =  navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     const pipeline = device.createRenderPipeline({
@@ -67,7 +68,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       primitive: {
         topology: 'triangle-list',
       },
-      layout: undefined
+      layout: 'auto'
     });
 
     const sampler = device.createSampler({

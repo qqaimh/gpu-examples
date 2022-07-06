@@ -33,11 +33,12 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
   
     const spriteShaderModule = device.createShaderModule({ code: spriteWGSL });
@@ -234,7 +235,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         const passEncoder = commandEncoder.beginComputePass();
         passEncoder.setPipeline(computePipeline);
         passEncoder.setBindGroup(0, particleBindGroups[t % 2]);
-        passEncoder.dispatch(Math.ceil(numParticles / 64));
+        passEncoder.dispatchWorkgroups(Math.ceil(numParticles / 64));
         passEncoder.end();
       }
       {

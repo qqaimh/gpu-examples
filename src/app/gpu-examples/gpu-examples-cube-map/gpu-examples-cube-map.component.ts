@@ -39,12 +39,13 @@ export class GpuExamplesCubeMapComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
   
     // Create a vertex buffer from the cube data.

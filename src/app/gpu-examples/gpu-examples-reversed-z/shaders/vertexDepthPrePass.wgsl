@@ -1,8 +1,8 @@
 struct Uniforms {
-  modelMatrix : array<mat4x4<f32>, 5>;
+  modelMatrix : array<mat4x4<f32>, 5>,
 };
 struct Camera {
-  viewProjectionMatrix : mat4x4<f32>;
+  viewProjectionMatrix : mat4x4<f32>,
 };
 
 @binding(0) @group(0) var<uniform> uniforms : Uniforms;

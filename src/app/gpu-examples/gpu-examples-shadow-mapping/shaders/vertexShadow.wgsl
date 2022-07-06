@@ -1,11 +1,11 @@
 struct Scene {
-  lightViewProjMatrix : mat4x4<f32>;
-  cameraViewProjMatrix : mat4x4<f32>;
-  lightPos : vec3<f32>;
+  lightViewProjMatrix: mat4x4<f32>,
+  cameraViewProjMatrix: mat4x4<f32>,
+  lightPos: vec3<f32>,
 };
 
 struct Model {
-  modelMatrix : mat4x4<f32>;
+  modelMatrix: mat4x4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> scene : Scene;

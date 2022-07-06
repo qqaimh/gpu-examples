@@ -1,9 +1,9 @@
 struct UBO {
-  width : u32;
+  width : u32,
 };
 
 struct Buffer {
-  weights : array<f32>;
+  weights : array<f32>,
 };
 
 @binding(0) @group(0) var<uniform> ubo : UBO;

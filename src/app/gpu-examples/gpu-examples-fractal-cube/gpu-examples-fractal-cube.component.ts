@@ -38,7 +38,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   
     context.configure({
       device,
@@ -48,6 +48,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       // will copy out of the swapchain texture.
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
   
     // Create a vertex buffer from the cube data.

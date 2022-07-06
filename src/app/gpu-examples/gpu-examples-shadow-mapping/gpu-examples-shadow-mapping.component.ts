@@ -39,11 +39,12 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
     const aspect = presentationSize[0] / presentationSize[1];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     // Create the model vertex buffer.

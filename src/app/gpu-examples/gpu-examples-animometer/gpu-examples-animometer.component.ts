@@ -50,13 +50,14 @@ export class GpuExamplesAnimometerComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = context.getPreferredFormat(adapter);
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     const timeBindGroupLayout = device.createBindGroupLayout({
@@ -150,7 +151,7 @@ export class GpuExamplesAnimometerComponent implements OnInit {
         frontFace: 'ccw',
         cullMode: 'none',
       },
-      layout: undefined
+      layout: 'auto'
     };
 
     const pipeline = device.createRenderPipeline({

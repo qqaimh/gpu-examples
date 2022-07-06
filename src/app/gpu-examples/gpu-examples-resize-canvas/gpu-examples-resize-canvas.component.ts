@@ -36,36 +36,37 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
       device,
       format: presentationFormat,
       size: presentationSize,
+      alphaMode: 'premultiplied'
     });
 
     const sampleCount = 4;
 
     const pipeline = device.createRenderPipeline({
-  vertex: {
-    module: device.createShaderModule({
-      code: triangleVertWGSL,
-    }),
-    entryPoint: 'main',
-  },
-  fragment: {
-    module: device.createShaderModule({
-      code: redFragWGSL,
-    }),
-    entryPoint: 'main',
-    targets: [
-      {
-        format: presentationFormat,
+      vertex: {
+        module: device.createShaderModule({
+          code: triangleVertWGSL,
+        }),
+        entryPoint: 'main',
       },
-    ],
-  },
-  primitive: {
-    topology: 'triangle-list',
-  },
-  multisample: {
-    count: 4,
-  },
-  layout: 'auto'
-});
+      fragment: {
+        module: device.createShaderModule({
+          code: redFragWGSL,
+        }),
+        entryPoint: 'main',
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+      multisample: {
+        count: 4,
+      },
+      layout: 'auto'
+    });
 
     let renderTarget: GPUTexture | undefined = undefined;
     let renderTargetView: GPUTextureView;
@@ -96,6 +97,7 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
           device,
           format: presentationFormat,
           size: presentationSize,
+          alphaMode: 'premultiplied'
         });
 
         renderTarget = device.createTexture({
