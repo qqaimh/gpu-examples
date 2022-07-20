@@ -58,8 +58,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
     const kVertexStride = 8;
     const vertexBuffer = device.createBuffer({
       // position: vec3, normal: vec3, uv: vec2
-      size:
-        mesh.positions.length * kVertexStride * Float32Array.BYTES_PER_ELEMENT,
+      size: mesh.positions.length * kVertexStride * Float32Array.BYTES_PER_ELEMENT,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
     });

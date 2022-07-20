@@ -27,8 +27,8 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
   }
 
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter!.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter!.requestDevice();
 
     if (this.theCanvas.nativeElement === null) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
@@ -48,7 +48,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     });
 
     // Create a vertex buffer from the cube data.
-    const verticesBuffer = device.createBuffer({
+    const verticesBuffer: GPUBuffer = device.createBuffer({
       size: cubeVertexArray.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
@@ -56,7 +56,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = device.createRenderPipeline({
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
@@ -112,14 +112,14 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
       layout: 'auto'
     });
 
-    const depthTexture = device.createTexture({
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
     const uniformBufferSize = 4 * 16; // 4x4 matrix
-    const uniformBuffer = device.createBuffer({
+    const uniformBuffer: GPUBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
@@ -127,10 +127,10 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     // Fetch the image and upload it into a GPUTexture.
     let cubeTexture: GPUTexture;
     {
-      const img = document.createElement('img');
+      const img: HTMLImageElement = document.createElement('img');
       img.src = '../../assets/img/Di-3d.png';
       await img.decode();
-      const imageBitmap = await createImageBitmap(img);
+      const imageBitmap: ImageBitmap = await createImageBitmap(img);
 
       cubeTexture = device.createTexture({
         size: [imageBitmap.width, imageBitmap.height, 1],
@@ -148,12 +148,12 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     }
 
     // Create a sampler with linear filtering for smooth interpolation.
-    const sampler = device.createSampler({
+    const sampler: GPUSampler = device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
     });
 
-    const uniformBindGroup = device.createBindGroup({
+    const uniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -191,7 +191,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
         depthStoreOp: 'store',
       },
     };
-
+ 
     const aspect = presentationSize[0] / presentationSize[1];
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 100.0);
@@ -217,7 +217,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
-      const transformationMatrix = getTransformationMatrix();
+      const transformationMatrix: Float32Array = getTransformationMatrix();
       device.queue.writeBuffer(
         uniformBuffer,
         0,
@@ -225,12 +225,10 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
         transformationMatrix.byteOffset,
         transformationMatrix.byteLength
       );
-      (renderPassDescriptor.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = context
-        .getCurrentTexture()
-        .createView();
+      (renderPassDescriptor.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = context.getCurrentTexture().createView();
 
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, uniformBindGroup);
       passEncoder.setVertexBuffer(0, verticesBuffer);

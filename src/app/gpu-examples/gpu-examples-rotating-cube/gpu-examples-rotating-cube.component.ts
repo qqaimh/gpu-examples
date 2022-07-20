@@ -27,8 +27,8 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
   }
 
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter!.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter!.requestDevice();
 
     if (this.theCanvas.nativeElement === null) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
@@ -56,7 +56,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = device.createRenderPipeline({
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
@@ -112,19 +112,19 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
       layout: 'auto'
     });
 
-    const depthTexture = device.createTexture({
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
     const uniformBufferSize = 4 * 16; // 4x4 matrix
-    const uniformBuffer = device.createBuffer({
+    const uniformBuffer: GPUBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const uniformBindGroup = device.createBindGroup({
+    const uniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -192,8 +192,8 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
         .getCurrentTexture()
         .createView();
 
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, uniformBindGroup);
       passEncoder.setVertexBuffer(0, verticesBuffer);
