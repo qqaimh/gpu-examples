@@ -9,61 +9,61 @@ import redFragWGSL from './shaders/red.frag.wgsl';
   styleUrls: ['./gpu-examples-hello-triangle.component.scss']
 })
 export class GpuExamplesHelloTriangleComponent implements OnInit {
-  @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
+  @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
 
   constructor(
-  ) { 
+  ) {
   }
 
   ngOnInit(): void {
     this.draw();
   }
 
-  async draw()  {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
-  
+  async draw() {
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter!.requestDevice();
+
     if (!this.theCanvas.nativeElement) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
-  
+
     context.configure({
       device,
       format: presentationFormat,
       alphaMode: 'opaque',
     });
-  
-    const pipeline = device.createRenderPipeline({
-  vertex: {
-    module: device.createShaderModule({
-      code: triangleVertWGSL,
-    }),
-    entryPoint: 'main',
-  },
-  fragment: {
-    module: device.createShaderModule({
-      code: redFragWGSL,
-    }),
-    entryPoint: 'main',
-    targets: [
-      {
-        format: presentationFormat,
+
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
+      vertex: {
+        module: device.createShaderModule({
+          code: triangleVertWGSL,
+        }),
+        entryPoint: 'main',
       },
-    ],
-  },
-  primitive: {
-    topology: 'triangle-list',
-  },
-  layout: 'auto'
-});
-  
+      fragment: {
+        module: device.createShaderModule({
+          code: redFragWGSL,
+        }),
+        entryPoint: 'main',
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+      layout: 'auto'
+    });
+
     const frame = () => {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
-      const commandEncoder = device.createCommandEncoder();
-      const textureView = context.getCurrentTexture().createView();
-  
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const textureView: GPUTextureView = context.getCurrentTexture().createView();
+
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
           {
@@ -74,16 +74,16 @@ export class GpuExamplesHelloTriangleComponent implements OnInit {
           },
         ],
       };
-  
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.draw(3, 1, 0, 0);
       passEncoder.end();
-  
+
       device.queue.submit([commandEncoder.finish()]);
       requestAnimationFrame(frame);
     }
-  
+
     requestAnimationFrame(frame);
 
   }
