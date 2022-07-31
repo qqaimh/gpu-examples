@@ -19,26 +19,26 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
 
   async draw() {
     // Set video element
-    const video = document.createElement('video');
+    const video: HTMLVideoElement = document.createElement('video');
     video.loop = true;
     video.autoplay = true;
     video.muted = true;
     video.src = '../../assets/video/pano.webm';
     await video.play();
 
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
 
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat =  navigator.gpu.getPreferredCanvasFormat();
+    const presentationFormat: GPUTextureFormat =  navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
@@ -47,7 +47,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       alphaMode: 'premultiplied'
     });
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = device.createRenderPipeline({
       vertex: {
         module: device.createShaderModule({
           code: fullscreenTexturedQuadWGSL,
@@ -71,7 +71,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       layout: 'auto'
     });
 
-    const sampler = device.createSampler({
+    const sampler: GPUSampler = device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
     });
@@ -80,7 +80,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
-      const uniformBindGroup = device.createBindGroup({
+      const uniformBindGroup: GPUBindGroup = device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
           {
@@ -96,8 +96,8 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
         ],
       });
 
-      const commandEncoder = device.createCommandEncoder();
-      const textureView = context.getCurrentTexture().createView();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const textureView: GPUTextureView = context.getCurrentTexture().createView();
 
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
@@ -110,7 +110,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
         ],
       };
 
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, uniformBindGroup);
       passEncoder.draw(6, 1, 0, 0);

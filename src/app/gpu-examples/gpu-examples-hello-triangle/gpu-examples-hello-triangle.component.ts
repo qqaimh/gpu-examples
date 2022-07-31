@@ -62,8 +62,8 @@ export class GpuExamplesHelloTriangleComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
       const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      
       const textureView: GPUTextureView = context.getCurrentTexture().createView();
-
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
           {
@@ -74,7 +74,6 @@ export class GpuExamplesHelloTriangleComponent implements OnInit {
           },
         ],
       };
-
       const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.draw(3, 1, 0, 0);

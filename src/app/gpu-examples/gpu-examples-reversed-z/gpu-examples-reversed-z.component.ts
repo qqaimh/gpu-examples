@@ -686,7 +686,7 @@ export class GpuExamplesReversedZComponent implements OnInit {
             drawPassDescriptors[m].colorAttachments[0].view = attachment;
             drawPassDescriptors[m].depthStencilAttachment.depthClearValue =
               depthClearValues[m];
-            const precisionErrorPass = commandEncoder.beginRenderPass(
+            const precisionErrorPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(
               drawPassDescriptors[m]
             );
             precisionErrorPass.setPipeline(precisionPassPipelines[m]);
@@ -711,7 +711,7 @@ export class GpuExamplesReversedZComponent implements OnInit {
           {
             depthPrePassDescriptor.depthStencilAttachment.depthClearValue =
               depthClearValues[m];
-            const depthPrePass = commandEncoder.beginRenderPass(
+            const depthPrePass: GPURenderPassEncoder = commandEncoder.beginRenderPass(
               depthPrePassDescriptor
             );
             depthPrePass.setPipeline(depthPrePassPipelines[m]);

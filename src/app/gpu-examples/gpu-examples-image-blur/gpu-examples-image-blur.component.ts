@@ -27,18 +27,18 @@ export class GpuExamplesImageBlurComponent implements OnInit {
 
   // This example shows how to blur an image using a WebGPU compute shader.
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
@@ -47,7 +47,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       alphaMode: 'premultiplied'
     });
 
-    const blurPipeline = device.createComputePipeline({
+    const blurPipeline: GPUComputePipeline = await device.createComputePipelineAsync({
       compute: {
         module: device.createShaderModule({
           code: blurWGSL,
@@ -57,7 +57,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       layout: 'auto'
     });
 
-    const fullscreenQuadPipeline = device.createRenderPipeline({
+    const fullscreenQuadPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: fullscreenTexturedQuadWGSL,
@@ -81,7 +81,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       layout: 'auto'
     });
 
-    const sampler = device.createSampler({
+    const sampler: GPUSampler = device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
     });
@@ -89,10 +89,10 @@ export class GpuExamplesImageBlurComponent implements OnInit {
     const img = document.createElement('img');
     img.src = '../../assets/img/Di-3d.png';
     await img.decode();
-    const imageBitmap = await createImageBitmap(img);
+    const imageBitmap: ImageBitmap = await createImageBitmap(img);
 
     const [srcWidth, srcHeight] = [imageBitmap.width, imageBitmap.height];
-    const cubeTexture = device.createTexture({
+    const cubeTexture: GPUTexture = device.createTexture({
       size: [srcWidth, srcHeight, 1],
       format: 'rgba8unorm',
       usage:
@@ -260,9 +260,9 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
 
-      const computePass = commandEncoder.beginComputePass();
+      const computePass: GPUComputePassEncoder = commandEncoder.beginComputePass();
       computePass.setPipeline(blurPipeline);
       computePass.setBindGroup(0, computeConstants);
 

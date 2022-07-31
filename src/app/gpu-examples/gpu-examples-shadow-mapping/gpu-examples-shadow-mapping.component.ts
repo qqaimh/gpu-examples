@@ -26,12 +26,12 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
 
   // This example shows how to sample from a depth texture to render shadows.
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
 
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
@@ -39,7 +39,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
     const aspect = presentationSize[0] / presentationSize[1];
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
@@ -48,13 +48,13 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
     });
 
     // Create the model vertex buffer.
-    const vertexBuffer = device.createBuffer({
+    const vertexBuffer: GPUBuffer = device.createBuffer({
       size: mesh.positions.length * 3 * 2 * Float32Array.BYTES_PER_ELEMENT,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
     });
     {
-      const mapping = new Float32Array(vertexBuffer.getMappedRange());
+      const mapping: Float32Array = new Float32Array(vertexBuffer.getMappedRange());
       for (let i = 0; i < mesh.positions.length; ++i) {
         mapping.set(mesh.positions[i], 6 * i);
         mapping.set(mesh.normals[i], 6 * i + 3);
@@ -78,12 +78,12 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
     }
 
     // Create the depth texture for rendering/sampling the shadow map.
-    const shadowDepthTexture = device.createTexture({
+    const shadowDepthTexture: GPUTexture = device.createTexture({
       size: [shadowDepthTextureSize, shadowDepthTextureSize, 1],
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
       format: 'depth32float',
     });
-    const shadowDepthTextureView = shadowDepthTexture.createView();
+    const shadowDepthTextureView: GPUTextureView = shadowDepthTexture.createView();
 
     // Create some common descriptors used for both the shadow pipeline
     // and the color rendering pipeline.
@@ -112,7 +112,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       cullMode: 'back',
     };
 
-    const uniformBufferBindGroupLayout = device.createBindGroupLayout({
+    const uniformBufferBindGroupLayout: GPUBindGroupLayout = device.createBindGroupLayout({
       entries: [
         {
           binding: 0,
@@ -124,7 +124,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const shadowPipeline = device.createRenderPipeline({
+    const shadowPipeline: GPURenderPipeline = device.createRenderPipeline({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           uniformBufferBindGroupLayout,
@@ -175,9 +175,12 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = device.createRenderPipeline({
       layout: device.createPipelineLayout({
-        bindGroupLayouts: [bglForRender, uniformBufferBindGroupLayout],
+        bindGroupLayouts: [
+          bglForRender, 
+          uniformBufferBindGroupLayout
+        ],
       }),
       vertex: {
         module: device.createShaderModule({
@@ -205,7 +208,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       primitive,
     });
 
-    const depthTexture = device.createTexture({
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus-stencil8',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -234,12 +237,12 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       },
     };
 
-    const modelUniformBuffer = device.createBuffer({
+    const modelUniformBuffer: GPUBuffer = device.createBuffer({
       size: 4 * 16, // 4x4 matrix
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const sceneUniformBuffer = device.createBuffer({
+    const sceneUniformBuffer: GPUBuffer = device.createBuffer({
       // Two 4x4 viewProj matrices,
       // one for the camera and one for the light.
       // Then a vec3 for the light position.
@@ -247,7 +250,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const sceneBindGroupForShadow = device.createBindGroup({
+    const sceneBindGroupForShadow: GPUBindGroup = device.createBindGroup({
       layout: uniformBufferBindGroupLayout,
       entries: [
         {
@@ -259,7 +262,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const sceneBindGroupForRender = device.createBindGroup({
+    const sceneBindGroupForRender: GPUBindGroup = device.createBindGroup({
       layout: bglForRender,
       entries: [
         {
@@ -281,7 +284,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const modelBindGroup = device.createBindGroup({
+    const modelBindGroup: GPUBindGroup = device.createBindGroup({
       layout: uniformBufferBindGroupLayout,
       entries: [
         {
@@ -409,9 +412,9 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
         .getCurrentTexture()
         .createView();
 
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       {
-        const shadowPass = commandEncoder.beginRenderPass(shadowPassDescriptor);
+        const shadowPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(shadowPassDescriptor);
         shadowPass.setPipeline(shadowPipeline);
         shadowPass.setBindGroup(0, sceneBindGroupForShadow);
         shadowPass.setBindGroup(1, modelBindGroup);
@@ -422,7 +425,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
         shadowPass.end();
       }
       {
-        const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
+        const renderPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
         renderPass.setPipeline(pipeline);
         renderPass.setBindGroup(0, sceneBindGroupForRender);
         renderPass.setBindGroup(1, modelBindGroup);

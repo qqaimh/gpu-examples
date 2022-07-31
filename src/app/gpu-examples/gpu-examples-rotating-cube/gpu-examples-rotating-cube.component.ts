@@ -139,7 +139,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: ([
         {
-          view: undefined, // Assigned later
+          view: context.getCurrentTexture().createView(), // Assigned later
 
           clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
           loadOp: 'clear',
@@ -203,8 +203,8 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
 
       requestAnimationFrame(frame);
     }
-    requestAnimationFrame(frame);
 
+    requestAnimationFrame(frame);
   }
 
 }

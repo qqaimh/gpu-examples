@@ -27,11 +27,11 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
   }
 
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter!.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter!.requestDevice();
 
     if (this.theCanvas.nativeElement === null) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
@@ -48,7 +48,7 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
     });
 
     // Create a vertex buffer from the cube data.
-    const verticesBuffer = device.createBuffer({
+    const verticesBuffer: GPUBuffer = device.createBuffer({
       size: cubeVertexArray.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
@@ -56,7 +56,7 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = device.createRenderPipeline({
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
@@ -112,7 +112,7 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
       layout: 'auto'
     });
 
-    const depthTexture = device.createTexture({
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -122,12 +122,12 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
     const offset = 256; // uniformBindGroup offset must be 256-byte aligned
     const uniformBufferSize = offset + matrixSize;
 
-    const uniformBuffer = device.createBuffer({
+    const uniformBuffer: GPUBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const uniformBindGroup1 = device.createBindGroup({
+    const uniformBindGroup1: GPUBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -141,7 +141,7 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
       ],
     });
 
-    const uniformBindGroup2 = device.createBindGroup({
+    const uniformBindGroup2: GPUBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -158,7 +158,9 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
-          view: undefined, // Assigned later
+          view: context
+          .getCurrentTexture()
+          .createView(), // Assigned later
 
           clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
           loadOp: 'clear',
@@ -244,8 +246,8 @@ export class GpuExamplesTwoCubesComponent implements OnInit {
         .getCurrentTexture()
         .createView();
 
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setVertexBuffer(0, verticesBuffer);
 
