@@ -120,7 +120,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       });
     });
 
-    const buffer0 = (() => {
+    const buffer0: GPUBuffer = (() => {
       const buffer = device.createBuffer({
         size: 4,
         mappedAtCreation: true,
@@ -131,7 +131,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       return buffer;
     })();
 
-    const buffer1 = (() => {
+    const buffer1: GPUBuffer = (() => {
       const buffer = device.createBuffer({
         size: 4,
         mappedAtCreation: true,
@@ -142,12 +142,12 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       return buffer;
     })();
 
-    const blurParamsBuffer = device.createBuffer({
+    const blurParamsBuffer: GPUBuffer = device.createBuffer({
       size: 8,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
 
-    const computeConstants = device.createBindGroup({
+    const computeConstants: GPUBindGroup = device.createBindGroup({
       layout: blurPipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -163,7 +163,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       ],
     });
 
-    const computeBindGroup0 = device.createBindGroup({
+    const computeBindGroup0: GPUBindGroup = device.createBindGroup({
       layout: blurPipeline.getBindGroupLayout(1),
       entries: [
         {
@@ -183,7 +183,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       ],
     });
 
-    const computeBindGroup1 = device.createBindGroup({
+    const computeBindGroup1: GPUBindGroup = device.createBindGroup({
       layout: blurPipeline.getBindGroupLayout(1),
       entries: [
         {
@@ -203,7 +203,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       ],
     });
 
-    const computeBindGroup2 = device.createBindGroup({
+    const computeBindGroup2: GPUBindGroup = device.createBindGroup({
       layout: blurPipeline.getBindGroupLayout(1),
       entries: [
         {
@@ -223,7 +223,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
       ],
     });
 
-    const showResultBindGroup = device.createBindGroup({
+    const showResultBindGroup: GPUBindGroup = device.createBindGroup({
       layout: fullscreenQuadPipeline.getBindGroupLayout(0),
       entries: [
         {
