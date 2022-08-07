@@ -57,7 +57,7 @@ export class GpuExamplesCubeMapComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
   
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
