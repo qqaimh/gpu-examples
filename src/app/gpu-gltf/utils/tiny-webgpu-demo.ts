@@ -5,45 +5,6 @@ import { vec3, mat4 } from 'gl-matrix';
 
 import {Pane} from 'tweakpane';
 
-// Style for elements used by the demo.
-const injectedStyle = document.createElement('style');
-injectedStyle.innerText = `
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: sans-serif;
-  }
-
-  body {
-    height: 100%;
-    background-color: #222222;
-  }
-
-  canvas {
-    position: absolute;
-    z-index: 0;
-    height: 100%;
-    width: 100%;
-    inset: 0;
-    margin: 0;
-    touch-action: none;
-  }
-
-  .error {
-    position: absolute;
-    z-index: 2;
-    inset: 9em 3em;
-    margin: 0;
-    padding: 0;
-    color: #FF8888;
-  }
-
-  .tp-dfwv {
-    z-index: 3;
-    width: 290px !important;
-  }
-`;
-document.head.appendChild(injectedStyle);
 
 const sourceOrigin = 'https://github.com/toji';
 const sourceRepo = 'webgpu-gltf-case-study';
