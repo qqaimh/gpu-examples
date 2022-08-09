@@ -13,7 +13,7 @@ const GltfModels = {
   corset: `${GltfRootDir}/Corset/glTF-Binary/Corset.glb`,
   damaged_helmet: `${GltfRootDir}/DamagedHelmet/glTF-Binary/DamagedHelmet.glb`,
   flight_helmet: `${GltfRootDir}/FlightHelmet/glTF/FlightHelmet.gltf`,
-  sponza: `./sponza-optimized/Sponza.gltf`,
+  sponza: `${GltfRootDir}/sponza-optimized/Sponza.gltf`,
 };
 
 // Runs the basic render loop, model switching, and camera handling.
