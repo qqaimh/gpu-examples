@@ -20,20 +20,21 @@ export class GltfRenderer {
 
   app;
   device;
-  nodeBindGroupLayout;
+  instanceBindGroupLayout;
   gltfPipelineLayout;
+  instanceBindGroup;
   shaderModule;
 
   constructor(demoApp, gltf) {
     this.app = demoApp;
     this.device = demoApp.device;
 
-    this.nodeBindGroupLayout = this.device.createBindGroupLayout({
-      label: `glTF Node BindGroupLayout`,
+    this.instanceBindGroupLayout = this.device.createBindGroupLayout({
+      label: `glTF Instance BindGroupLayout`,
       entries: [{
         binding: 0, // Node uniforms
         visibility: GPUShaderStage.VERTEX,
-        buffer: {},
+        buffer: { type: 'read-only-storage' },
       }],
     });
 
@@ -41,11 +42,16 @@ export class GltfRenderer {
       label: 'glTF Pipeline Layout',
       bindGroupLayouts: [
         this.app.frameBindGroupLayout,
-        this.nodeBindGroupLayout,
+        this.instanceBindGroupLayout,
       ]
     });
 
-    const primitiveInstances = new Map();
+    const primitiveInstances = {
+      matrices: new Map(), // The instance matrices for each primitive.
+      total: 0, // The total number of instance matrices.
+      arrayBuffer: null, // The array buffer that the matrices will be placed in.
+      offset: 0, // The offset (in matrices) of the last matrix written into arrayBuffer.
+    };
 
     for (const node of gltf.nodes) {
       if ('mesh' in node) {
@@ -53,62 +59,87 @@ export class GltfRenderer {
       }
     }
 
+    // Create a buffer large enough to contain all the instance matrices for the entire scene.
+    const instanceBuffer = this.device.createBuffer({
+      size: 16 * Float32Array.BYTES_PER_ELEMENT * primitiveInstances.total,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      mappedAtCreation: true,
+    });
+
+    // Map the instance matrices buffer so we can write all the matrices into it.
+    primitiveInstances.arrayBuffer = new Float32Array(instanceBuffer.getMappedRange());
+
     for (const mesh of gltf.meshes) {
       for (const primitive of mesh.primitives) {
         this.setupPrimitive(gltf, primitive, primitiveInstances);
       }
     }
+
+    // Unmap the buffer when we're finished writing all the instance matrices.
+    instanceBuffer.unmap();
+
+    // Create a bind group for the instance buffer.
+    this.instanceBindGroup = this.device.createBindGroup({
+      label: `glTF Instance BindGroup`,
+      layout: this.instanceBindGroupLayout,
+      entries: [{
+        binding: 0, // Instance storage buffer
+        resource: { buffer: instanceBuffer },
+      }],
+    });
   }
 
   getShaderModule() {
     if (!this.shaderModule) {
       const code = `
-              struct Camera {
-                projection : mat4x4<f32>,
-                view : mat4x4<f32>,
-                position : vec3<f32>,
-                time : f32,
-              };
-              @group(0) @binding(0) var<uniform> camera : Camera;
+        struct Camera {
+          projection : mat4x4<f32>,
+          view : mat4x4<f32>,
+          position : vec3<f32>,
+          time : f32,
+        };
+        @group(0) @binding(0) var<uniform> camera : Camera;
 
-              @group(1) @binding(0) var<uniform> model : mat4x4<f32>;
+        @group(1) @binding(0) var<storage> model : array<mat4x4<f32>>;
 
-              struct VertexInput {
-                @location(${ShaderLocations.POSITION}) position : vec3<f32>,
-                @location(${ShaderLocations.NORMAL}) normal : vec3<f32>,
-              };
+        struct VertexInput {
+          @builtin(instance_index) instance : u32,
+          @location(${ShaderLocations.POSITION}) position : vec3<f32>,
+          @location(${ShaderLocations.NORMAL}) normal : vec3<f32>,
+        };
 
-              struct VertexOutput {
-                @builtin(position) position : vec4<f32>,
-                @location(0) normal : vec3<f32>,
-              };
+        struct VertexOutput {
+          @builtin(position) position : vec4<f32>,
+          @location(0) normal : vec3<f32>,
+        };
 
-              @vertex
-              fn vertexMain(input : VertexInput) -> VertexOutput {
-                var output : VertexOutput;
+        @vertex
+        fn vertexMain(input : VertexInput) -> VertexOutput {
+          var output : VertexOutput;
 
-                output.position = camera.projection * camera.view * model * vec4(input.position, 1.0);
-                output.normal = normalize((camera.view * model * vec4(input.normal, 0.0)).xyz);
+          let modelMatrix = model[input.instance];
+          output.position = camera.projection * camera.view * modelMatrix * vec4(input.position, 1.0);
+          output.normal = normalize((camera.view * modelMatrix * vec4(input.normal, 0.0)).xyz);
 
-                return output;
-              }
+          return output;
+        }
 
-              // Some hardcoded lighting
-              const lightDir = vec3(0.25, 0.5, 1.0);
-              const lightColor = vec3(1.0, 1.0, 1.0);
-              const ambientColor = vec3(0.1, 0.1, 0.1);
+        // Some hardcoded lighting
+        const lightDir = vec3(0.25, 0.5, 1.0);
+        const lightColor = vec3(1.0, 1.0, 1.0);
+        const ambientColor = vec3(0.1, 0.1, 0.1);
 
-              @fragment
-              fn fragmentMain(input : VertexOutput) -> @location(0) vec4<f32> {
-                // An extremely simple directional lighting model, just to give our model some shape.
-                let N = normalize(input.normal);
-                let L = normalize(lightDir);
-                let NDotL = max(dot(N, L), 0.0);
-                let surfaceColor = ambientColor + NDotL;
+        @fragment
+        fn fragmentMain(input : VertexOutput) -> @location(0) vec4<f32> {
+          // An extremely simple directional lighting model, just to give our model some shape.
+          let N = normalize(input.normal);
+          let L = normalize(lightDir);
+          let NDotL = max(dot(N, L), 0.0);
+          let surfaceColor = ambientColor + NDotL;
 
-                return vec4(surfaceColor, 1.0);
-              }
-            `;
+          return vec4(surfaceColor, 1.0);
+        }
+      `;
 
       this.shaderModule = this.device.createShaderModule({
         label: 'Simple glTF rendering shader module',
@@ -120,32 +151,36 @@ export class GltfRenderer {
   }
 
   setupMeshNode(gltf, node, primitiveInstances) {
-    const nodeUniformBuffer = this.device.createBuffer({
-      size: 16 * Float32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    });
-    this.device.queue.writeBuffer(nodeUniformBuffer, 0, node.worldMatrix);
-
-    const bindGroup = this.device.createBindGroup({
-      label: `glTF Node BindGroup`,
-      layout: this.nodeBindGroupLayout,
-      entries: [{
-        binding: 0, // Node uniforms
-        resource: { buffer: nodeUniformBuffer },
-      }],
-    });
-
-    // Loop through every primitive of the node's mesh and append this node's transform to
-    // the primitives instance list.
     const mesh = gltf.meshes[node.mesh];
     for (const primitive of mesh.primitives) {
-      let instances = primitiveInstances.get(primitive);
+      let instances = primitiveInstances.matrices.get(primitive);
       if (!instances) {
         instances = [];
-        primitiveInstances.set(primitive, instances);
+        primitiveInstances.matrices.set(primitive, instances);
       }
-      instances.push(bindGroup);
+      instances.push(node.worldMatrix);
     }
+    // Make sure to add the number of matrices used for this mesh to the total.
+    primitiveInstances.total += mesh.primitives.length;
+  }
+
+  setupPrimitiveInstances(primitive, primitiveInstances) {
+    // Get the list of instance transform matricies for this primitive.
+    const instances = primitiveInstances.matrices.get(primitive);
+
+    const first = primitiveInstances.offset;
+    const count = instances.length;
+
+    // Place the matrices in the instances buffer at the given offset.
+    for (let i = 0; i < count; ++i) {
+      primitiveInstances.arrayBuffer.set(instances[i], (first + i) * 16);
+    }
+
+    // Update the offset for the next primitive.
+    primitiveInstances.offset += count;
+
+    // Return the index of the first instance and the count.
+    return { first, count };
   }
 
   setupPrimitive(gltf, primitive, primitiveInstances) {
@@ -191,17 +226,16 @@ export class GltfRenderer {
       drawCount = accessor.count;
     }
 
+    // Sort the attributes and buffers
     for (const buffer of bufferLayout.values()) {
       const gpuBuffer = gpuBuffers.get(buffer);
       for (const attribute of buffer.attributes) {
         attribute.offset -= gpuBuffer.offset;
       }
-      // Sort the attributes by shader location.
       buffer.attributes = buffer.attributes.sort((a, b) => {
         return a.shaderLocation - b.shaderLocation;
       });
     }
-    // Sort the buffers by their first attribute's shader location.
     const sortedBufferLayout = [...bufferLayout.values()].sort((a, b) => {
       return a.attributes[0].shaderLocation - b.attributes[0].shaderLocation;
     });
@@ -215,8 +249,7 @@ export class GltfRenderer {
     const gpuPrimitive = {
       buffers: sortedGpuBuffers,
       drawCount,
-      // Start tracking every transform that this primitive should be rendered with.
-      instances: primitiveInstances.get(primitive),
+      instances: this.setupPrimitiveInstances(primitive, primitiveInstances),
     };
 
     if ('indices' in primitive) {
@@ -227,12 +260,8 @@ export class GltfRenderer {
       gpuPrimitive.drawCount = accessor.count;
     }
 
-    // Make sure to pass the sorted buffer layout here.
     const pipelineArgs = this.getPipelineArgs(primitive, sortedBufferLayout);
     const pipeline = this.getPipelineForPrimitive(pipelineArgs);
-
-    // Don't need to link the primitive and gpuPrimitive any more, but we do need
-    // to add the gpuPrimitive to the pipeline's list of primitives.
     pipeline.primitives.push(gpuPrimitive);
   }
 
@@ -294,6 +323,9 @@ export class GltfRenderer {
   render(renderPass) {
     renderPass.setBindGroup(0, this.app.frameBindGroup);
 
+    // Set the bind group containing all of the instance transforms.
+    renderPass.setBindGroup(1, this.instanceBindGroup);
+
     for (const gpuPipeline of this.pipelineGpuData.values()) {
       renderPass.setPipeline(gpuPipeline.pipeline);
 
@@ -305,14 +337,13 @@ export class GltfRenderer {
           renderPass.setIndexBuffer(gpuPrimitive.indexBuffer, gpuPrimitive.indexType, gpuPrimitive.indexOffset);
         }
 
-        for (const bindGroup of gpuPrimitive.instances) {
-          renderPass.setBindGroup(1, bindGroup);
-
-          if (gpuPrimitive.indexBuffer) {
-            renderPass.drawIndexed(gpuPrimitive.drawCount);
-          } else {
-            renderPass.draw(gpuPrimitive.drawCount);
-          }
+        // Every time we draw, pass an offset (in instances) into the instance buffer as the
+        // "firstInstance" argument. This will change the initial instance_index passed to the
+        // shader and ensure we pull the right transform matrices from the buffer.
+        if (gpuPrimitive.indexBuffer) {
+          renderPass.drawIndexed(gpuPrimitive.drawCount, gpuPrimitive.instances.count, 0, 0, gpuPrimitive.instances.first);
+        } else {
+          renderPass.draw(gpuPrimitive.drawCount, gpuPrimitive.instances.count, 0, gpuPrimitive.instances.first);
         }
       }
     }
