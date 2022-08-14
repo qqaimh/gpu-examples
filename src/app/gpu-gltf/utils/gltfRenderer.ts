@@ -35,9 +35,9 @@ export class GltfRenderer {
   shaderModules = new Map();
 
   app;
-  device;
-  instanceBindGroupLayout;
-  materialBindGroupLayout;
+  device: GPUDevice;
+  instanceBindGroupLayout: GPUBindGroupLayout;
+  materialBindGroupLayout: GPUBindGroupLayout;
   gltfPipelineLayout;
   opaqueWhiteTexture;
   instanceBindGroup;

@@ -22,18 +22,18 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
   }
 
   async draw()  {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
   
     if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
   
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
@@ -41,8 +41,8 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       alphaMode: 'premultiplied'
     });
   
-    const spriteShaderModule = device.createShaderModule({ code: spriteWGSL });
-    const renderPipeline = device.createRenderPipeline({
+    const spriteShaderModule: GPUShaderModule = device.createShaderModule({ code: spriteWGSL });
+    const renderPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: spriteShaderModule,
         entryPoint: 'vert_main',
@@ -96,7 +96,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       layout: 'auto'
     });
   
-    const computePipeline = device.createComputePipeline({
+    const computePipeline: GPUComputePipeline = await device.createComputePipelineAsync({
       compute: {
         module: device.createShaderModule({
           code: updateSpritesWGSL,
@@ -117,13 +117,11 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       ],
     };
   
-    // prettier-ignore
     const vertexBufferData = new Float32Array([
       -0.01, -0.02, 0.01,
       -0.02, 0.0, 0.02,
     ]);
-  
-    const spriteVertexBuffer = device.createBuffer({
+    const spriteVertexBuffer: GPUBuffer = device.createBuffer({
       size: vertexBufferData.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
@@ -133,14 +131,13 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
   
     const simParams = {
       deltaT: 0.04,
-      rule1Distance: 0.1,
-      rule2Distance: 0.025,
-      rule3Distance: 0.025,
-      rule1Scale: 0.02,
-      rule2Scale: 0.05,
-      rule3Scale: 0.005,
+      rule1Distance: 0.1,  // 如果两个个体之间的距离小于0.1，我们认为他们是一个群体
+      rule2Distance: 0.025,  // 如果两个个体之间的距离小于0.025，则认为他们靠的太近，需要分开一点点
+      rule3Distance: 0.025, // 如果两个个体之间的距离小于0.03，则认为他们离的太远，希望他们靠近彼此一些
+      rule1Scale: 0.02,   // 规则1的权重
+      rule2Scale: 0.05,   // 规则2的权重
+      rule3Scale: 0.005,   // 规则3的权重
     };
-  
     const simParamBufferSize = 7 * Float32Array.BYTES_PER_ELEMENT;
     const simParamBuffer = device.createBuffer({
       size: simParamBufferSize,
@@ -226,20 +223,19 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
   
-      renderPassDescriptor.colorAttachments[0].view = context
-        .getCurrentTexture()
-        .createView();
+      renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
   
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       {
-        const passEncoder = commandEncoder.beginComputePass();
+        const passEncoder: GPUComputePassEncoder = commandEncoder.beginComputePass();
         passEncoder.setPipeline(computePipeline);
         passEncoder.setBindGroup(0, particleBindGroups[t % 2]);
         passEncoder.dispatchWorkgroups(Math.ceil(numParticles / 64));
         passEncoder.end();
       }
+
       {
-        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+        const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
         passEncoder.setPipeline(renderPipeline);
         passEncoder.setVertexBuffer(0, particleBuffers[(t + 1) % 2]);
         passEncoder.setVertexBuffer(1, spriteVertexBuffer);
