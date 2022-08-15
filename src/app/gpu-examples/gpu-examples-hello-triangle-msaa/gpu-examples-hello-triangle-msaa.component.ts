@@ -19,8 +19,8 @@ export class GpuExamplesHelloTriangleMsaaComponent implements OnInit {
   }
 
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
@@ -41,7 +41,7 @@ export class GpuExamplesHelloTriangleMsaaComponent implements OnInit {
 
     const sampleCount = 4;
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: triangleVertWGSL,
@@ -68,19 +68,19 @@ export class GpuExamplesHelloTriangleMsaaComponent implements OnInit {
       layout: 'auto'
     });
 
-    const texture = device.createTexture({
+    const texture: GPUTexture = device.createTexture({
       size: presentationSize,
       sampleCount,
       format: presentationFormat,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    const view = texture.createView();
+    const view: GPUTextureView = texture.createView();
 
     const frame = () => {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
 
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
@@ -94,7 +94,7 @@ export class GpuExamplesHelloTriangleMsaaComponent implements OnInit {
         ],
       };
 
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.draw(3, 1, 0, 0);
       passEncoder.end();

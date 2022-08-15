@@ -56,7 +56,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
 
-    const pipeline: GPURenderPipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
@@ -140,7 +140,6 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
       colorAttachments: ([
         {
           view: context.getCurrentTexture().createView(), // Assigned later
-
           clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
           loadOp: 'clear',
           storeOp: 'store',
@@ -188,9 +187,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
         transformationMatrix.byteOffset,
         transformationMatrix.byteLength
       );
-      (renderPassDescriptor.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = context
-        .getCurrentTexture()
-        .createView();
+      (renderPassDescriptor.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = context.getCurrentTexture().createView();
 
       const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);

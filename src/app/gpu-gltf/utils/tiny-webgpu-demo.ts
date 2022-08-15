@@ -3,7 +3,7 @@
 
 import { vec3, mat4 } from 'gl-matrix';
 
-import {Pane} from 'tweakpane';
+import {ButtonApi, Pane} from 'tweakpane';
 
 
 const sourceOrigin = 'https://github.com/toji';
@@ -30,8 +30,8 @@ export class TinyWebGpuDemo {
   #frameMs = new Array(20);
   #frameMsIndex = 0;
 
-  canvas;
-  context;
+  canvas: HTMLCanvasElement;
+  context: GPUCanvasContext;
   pane;
   camera;
   resizeObserver;
@@ -47,18 +47,14 @@ export class TinyWebGpuDemo {
 
   constructor() {
     this.canvas = document.querySelector('.webgpu-canvas');
-
-    if (!this.canvas) {
-      this.canvas = document.createElement('canvas');
-      document.body.appendChild(this.canvas);
-    }
     this.context = this.canvas.getContext('webgpu');
 
     this.pane = new Pane({
+      container: document.querySelector('.pane-container'),
       title: document.title.split('|')[0],
     });
 
-    const viewSrcBtn = this.pane.addButton({title: 'View Source'});
+    const viewSrcBtn: ButtonApi = this.pane.addButton({title: 'View Source'});
     viewSrcBtn.on('click', () => {
       let srcUrl = sourceOrigin + window.location.pathname.replace(sourceRepo, sourceRepo + '/blob/main');
       window.open(srcUrl, '_blank');

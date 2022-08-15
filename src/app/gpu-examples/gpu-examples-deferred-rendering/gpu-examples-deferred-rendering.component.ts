@@ -368,17 +368,17 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         );
       });
 
-    const modelUniformBuffer = device.createBuffer({
+    const modelUniformBuffer: GPUBuffer = device.createBuffer({
       size: 4 * 16 * 2, // two 4x4 matrix
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const cameraUniformBuffer = device.createBuffer({
+    const cameraUniformBuffer: GPUBuffer = device.createBuffer({
       size: 4 * 16, // 4x4 matrix
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const sceneUniformBindGroup = device.createBindGroup({
+    const sceneUniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: writeGBuffersPipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -396,12 +396,12 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       ],
     });
 
-    const canvasSizeUniformBuffer = device.createBuffer({
+    const canvasSizeUniformBuffer: GPUBuffer = device.createBuffer({
       size: 4 * 2,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const canvasSizeUniformBindGroup = device.createBindGroup({
+    const canvasSizeUniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: canvasSizeUniformBindGroupLayout,
       entries: [
         {
@@ -413,7 +413,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       ],
     });
 
-    const gBufferTexturesBindGroup = device.createBindGroup({
+    const gBufferTexturesBindGroup: GPUBindGroup = device.createBindGroup({
       layout: gBufferTexturesBindGroupLayout,
       entries: [
         {
@@ -483,7 +483,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       lightExtentData.byteLength
     );
 
-    const lightUpdateComputePipeline = device.createComputePipeline({
+    const lightUpdateComputePipeline: GPUComputePipeline = await device.createComputePipelineAsync({
       compute: {
         module: device.createShaderModule({
           code: lightUpdate,
@@ -492,7 +492,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       },
       layout: 'auto'
     });
-    const lightsBufferBindGroup = device.createBindGroup({
+    const lightsBufferBindGroup: GPUBindGroup = device.createBindGroup({
       layout: lightsBufferBindGroupLayout,
       entries: [
         {
@@ -509,7 +509,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         },
       ],
     });
-    const lightsBufferComputeBindGroup = device.createBindGroup({
+    const lightsBufferComputeBindGroup: GPUBindGroup = device.createBindGroup({
       layout: lightUpdateComputePipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -617,10 +617,10 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
         cameraViewProj.byteLength
       );
 
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       {
         // Write position, normal, albedo etc. data to gBuffers
-        const gBufferPass = commandEncoder.beginRenderPass(
+        const gBufferPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(
           writeGBufferPassDescriptor
         );
         gBufferPass.setPipeline(writeGBuffersPipeline);
@@ -632,7 +632,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       }
       {
         // Update lights position
-        const lightPass = commandEncoder.beginComputePass();
+        const lightPass: GPUComputePassEncoder = commandEncoder.beginComputePass();
         lightPass.setPipeline(lightUpdateComputePipeline);
         lightPass.setBindGroup(0, lightsBufferComputeBindGroup);
         lightPass.dispatchWorkgroups(Math.ceil(kMaxNumLights / 64));
@@ -647,7 +647,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
           textureQuadPassDescriptor.colorAttachments[0].view = context
             .getCurrentTexture()
             .createView();
-          const debugViewPass = commandEncoder.beginRenderPass(
+          const debugViewPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(
             textureQuadPassDescriptor
           );
           debugViewPass.setPipeline(gBuffersDebugViewPipeline);
@@ -660,7 +660,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
           textureQuadPassDescriptor.colorAttachments[0].view = context
             .getCurrentTexture()
             .createView();
-          const deferredRenderingPass = commandEncoder.beginRenderPass(
+          const deferredRenderingPass: GPURenderPassEncoder = commandEncoder.beginRenderPass(
             textureQuadPassDescriptor
           );
           deferredRenderingPass.setPipeline(deferredRenderPipeline);

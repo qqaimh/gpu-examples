@@ -1,8 +1,15 @@
 :host {
     flex: 1;
     display: flex;
+    position: relative;
 }
 
 canvas {
     flex: 1;
+}
+
+.pane-container {
+    position: absolute;
+    top: 0px;
+    right: 0px;
 }
