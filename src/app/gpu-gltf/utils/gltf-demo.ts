@@ -14,6 +14,8 @@ const GltfModels = {
   damaged_helmet: `${GltfRootDir}/DamagedHelmet/glTF-Binary/DamagedHelmet.glb`,
   flight_helmet: `${GltfRootDir}/FlightHelmet/glTF/FlightHelmet.gltf`,
   sponza: `${GltfRootDir}/sponza-optimized/Sponza.gltf`,
+  lantern: `${GltfRootDir}/Lantern/Lantern.glb`,
+  CesiumMan: `${GltfRootDir}/CesiumMan/CesiumMan.glb`,
 };
 
 // Runs the basic render loop, model switching, and camera handling.
