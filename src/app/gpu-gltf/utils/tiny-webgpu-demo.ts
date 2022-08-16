@@ -3,17 +3,13 @@
 
 import { vec3, mat4 } from 'gl-matrix';
 
-import {ButtonApi, Pane} from 'tweakpane';
-
-
-const sourceOrigin = 'https://github.com/toji';
-const sourceRepo = 'webgpu-gltf-case-study';
+import {Pane} from 'tweakpane';
 
 const FRAME_BUFFER_SIZE = Float32Array.BYTES_PER_ELEMENT * 36;
 
 export class TinyWebGpuDemo {
-  colorFormat = navigator.gpu?.getPreferredCanvasFormat?.() || 'bgra8unorm';
-  depthFormat = 'depth24plus';
+  colorFormat: GPUTextureFormat = navigator.gpu?.getPreferredCanvasFormat?.() || 'bgra8unorm';
+  depthFormat: GPUTextureFormat = 'depth24plus';
   sampleCount = 4;
   clearColor = {r: 0, g: 0, b: 0, a: 1.0};
 
@@ -31,16 +27,16 @@ export class TinyWebGpuDemo {
   #frameMsIndex = 0;
 
   canvas: HTMLCanvasElement;
+  device: GPUDevice;
   context: GPUCanvasContext;
   pane;
   camera;
   resizeObserver;
-  device;
-  frameUniformBuffer;
+  frameUniformBuffer: GPUBuffer;
   frameBindGroupLayout;
   frameBindGroup;
   statsFolder;
-  msaaColorTexture;
+  msaaColorTexture: GPUTexture;
   depthTexture;
   colorAttachment;
   renderPassDescriptor;
@@ -52,12 +48,6 @@ export class TinyWebGpuDemo {
     this.pane = new Pane({
       container: document.querySelector('.pane-container'),
       title: document.title.split('|')[0],
-    });
-
-    const viewSrcBtn: ButtonApi = this.pane.addButton({title: 'View Source'});
-    viewSrcBtn.on('click', () => {
-      let srcUrl = sourceOrigin + window.location.pathname.replace(sourceRepo, sourceRepo + '/blob/main');
-      window.open(srcUrl, '_blank');
     });
 
     this.camera = new OrbitCamera(this.canvas);
@@ -141,7 +131,7 @@ export class TinyWebGpuDemo {
   }
 
   async #initWebGPU() {
-    const adapter = await navigator.gpu.requestAdapter();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
     this.device = await adapter.requestDevice();
     this.context.configure({
       device: this.device,
@@ -255,14 +245,13 @@ export class TinyWebGpuDemo {
 }
 
 class ResizeObserverHelper extends ResizeObserver {
-    element;
-    callback;
+  callback: Function;
 
-  constructor(element, callback) {
+  constructor(element: HTMLElement, callback) {
     super(entries => {
       for (let entry of entries) {
         if (entry.target != element) { continue; }
-
+        console.log(4444,entry)
         if (entry.devicePixelContentBoxSize) {
           // Should give exact pixel dimensions, but only works on Chrome.
           const devicePixelSize = entry.devicePixelContentBoxSize[0];
@@ -277,7 +266,6 @@ class ResizeObserverHelper extends ResizeObserver {
       }
     });
 
-    this.element = element;
     this.callback = callback;
 
     this.observe(element);

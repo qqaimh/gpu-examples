@@ -223,12 +223,12 @@ export class GpuExamplesReversedZComponent implements OnInit {
     const depthPrePassPipelines: GPURenderPipeline[] = [];
     depthPrePassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Default];
-    depthPrePassPipelines[DepthBufferMode.Default] = device.createRenderPipeline(
+    depthPrePassPipelines[DepthBufferMode.Default] = await device.createRenderPipelineAsync(
       depthPrePassRenderPipelineDescriptorBase
     );
     depthPrePassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Reversed];
-    depthPrePassPipelines[DepthBufferMode.Reversed] = device.createRenderPipeline(
+    depthPrePassPipelines[DepthBufferMode.Reversed] = await device.createRenderPipelineAsync(
       depthPrePassRenderPipelineDescriptorBase
     );
 
@@ -282,14 +282,14 @@ export class GpuExamplesReversedZComponent implements OnInit {
     const precisionPassPipelines: GPURenderPipeline[] = [];
     precisionPassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Default];
-    precisionPassPipelines[DepthBufferMode.Default] = device.createRenderPipeline(
+    precisionPassPipelines[DepthBufferMode.Default] = await device.createRenderPipelineAsync(
       precisionPassRenderPipelineDescriptorBase
     );
     precisionPassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Reversed];
     precisionPassPipelines[
       DepthBufferMode.Reversed
-    ] = device.createRenderPipeline(precisionPassRenderPipelineDescriptorBase);
+    ] = await device.createRenderPipelineAsync(precisionPassRenderPipelineDescriptorBase);
 
     // colorPass is the regular render pass to render the scene
     const colorPassRenderPiplineLayout = device.createPipelineLayout({
@@ -346,12 +346,12 @@ export class GpuExamplesReversedZComponent implements OnInit {
     const colorPassPipelines: GPURenderPipeline[] = [];
     colorPassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Default];
-    colorPassPipelines[DepthBufferMode.Default] = device.createRenderPipeline(
+    colorPassPipelines[DepthBufferMode.Default] = await device.createRenderPipelineAsync(
       colorPassRenderPipelineDescriptorBase
     );
     colorPassRenderPipelineDescriptorBase.depthStencil.depthCompare =
       depthCompareFuncs[DepthBufferMode.Reversed];
-    colorPassPipelines[DepthBufferMode.Reversed] = device.createRenderPipeline(
+    colorPassPipelines[DepthBufferMode.Reversed] = await device.createRenderPipelineAsync(
       colorPassRenderPipelineDescriptorBase
     );
 
@@ -361,7 +361,7 @@ export class GpuExamplesReversedZComponent implements OnInit {
     const textureQuadPassPiplineLayout = device.createPipelineLayout({
       bindGroupLayouts: [depthTextureBindGroupLayout],
     });
-    const textureQuadPassPipline = device.createRenderPipeline({
+    const textureQuadPassPipline: GPURenderPipeline = await device.createRenderPipelineAsync({
       layout: textureQuadPassPiplineLayout,
       vertex: {
         module: device.createShaderModule({

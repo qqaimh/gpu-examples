@@ -61,7 +61,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE,
     });
 
-    const renderPipeline = device.createRenderPipeline({
+    const renderPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: particleWGSL,

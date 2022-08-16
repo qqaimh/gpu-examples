@@ -47,7 +47,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       alphaMode: 'premultiplied'
     });
 
-    const pipeline: GPURenderPipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: fullscreenTexturedQuadWGSL,

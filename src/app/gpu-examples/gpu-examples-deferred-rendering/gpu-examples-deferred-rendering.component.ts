@@ -141,7 +141,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       cullMode: 'back',
     };
 
-    const writeGBuffersPipeline: GPURenderPipeline = device.createRenderPipeline({
+    const writeGBuffersPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: vertexWriteGBuffers,
@@ -229,7 +229,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       ],
     });
 
-    const gBuffersDebugViewPipeline = device.createRenderPipeline({
+    const gBuffersDebugViewPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           gBufferTexturesBindGroupLayout,
@@ -256,7 +256,7 @@ export class GpuExamplesDeferredRenderingComponent implements OnInit {
       primitive,
     });
 
-    const deferredRenderPipeline = device.createRenderPipeline({
+    const deferredRenderPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           gBufferTexturesBindGroupLayout,

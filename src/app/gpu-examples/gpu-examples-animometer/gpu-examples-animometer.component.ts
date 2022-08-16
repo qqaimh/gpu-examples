@@ -154,12 +154,12 @@ export class GpuExamplesAnimometerComponent implements OnInit {
       layout: 'auto'
     };
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       ...pipelineDesc,
       layout: pipelineLayout,
     });
 
-    const dynamicPipeline = device.createRenderPipeline({
+    const dynamicPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       ...pipelineDesc,
       layout: dynamicPipelineLayout,
     });

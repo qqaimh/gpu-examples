@@ -124,7 +124,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const shadowPipeline: GPURenderPipeline = device.createRenderPipeline({
+    const shadowPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           uniformBufferBindGroupLayout,
@@ -175,7 +175,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       ],
     });
 
-    const pipeline: GPURenderPipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           bglForRender, 

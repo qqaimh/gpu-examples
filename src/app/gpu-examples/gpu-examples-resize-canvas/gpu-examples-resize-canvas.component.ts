@@ -41,7 +41,7 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
 
     const sampleCount = 4;
 
-    const pipeline = device.createRenderPipeline({
+    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
           code: triangleVertWGSL,
