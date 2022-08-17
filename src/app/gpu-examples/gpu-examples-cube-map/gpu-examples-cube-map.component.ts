@@ -28,35 +28,35 @@ export class GpuExamplesCubeMapComponent implements OnInit {
   }
 
   async draw()  {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
-  
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
+
     if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
-  
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
+
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
-  
+    const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
+
     context.configure({
       device,
       format: presentationFormat,
       size: presentationSize,
       alphaMode: 'premultiplied'
     });
-  
+
     // Create a vertex buffer from the cube data.
-    const verticesBuffer = device.createBuffer({
+    const verticesBuffer: GPUBuffer = device.createBuffer({
       size: cubeVertexArray.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
     });
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
-  
+
     const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
         module: device.createShaderModule({
@@ -112,13 +112,13 @@ export class GpuExamplesCubeMapComponent implements OnInit {
       },
       layout: 'auto'
     });
-  
-    const depthTexture = device.createTexture({
+
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
-  
+
     // Fetch the 6 separate images for negative/positive x, y, z axis of a cubemap
     // and upload it into a GPUTexture.
     let cubemapTexture: GPUTexture;
@@ -132,13 +132,13 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         `../../assets/img/cubemap/posz.jpg`,
         `../../assets/img/cubemap/negz.jpg`,
       ];
-      const promises = imgSrcs.map((src) => {
+      const promises: Promise<ImageBitmap>[] = imgSrcs.map((src) => {
         const img = document.createElement('img');
         img.src = src;
         return img.decode().then(() => createImageBitmap(img));
       });
       const imageBitmaps = await Promise.all(promises);
-  
+
       cubemapTexture = device.createTexture({
         dimension: '2d',
         // Create a 2d array texture.
@@ -150,7 +150,7 @@ export class GpuExamplesCubeMapComponent implements OnInit {
           GPUTextureUsage.COPY_DST |
           GPUTextureUsage.RENDER_ATTACHMENT,
       });
-  
+
       for (let i = 0; i < imageBitmaps.length; i++) {
         const imageBitmap = imageBitmaps[i];
         device.queue.copyExternalImageToTexture(
@@ -160,19 +160,19 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         );
       }
     }
-  
+
     const uniformBufferSize = 4 * 16; // 4x4 matrix
-    const uniformBuffer = device.createBuffer({
+    const uniformBuffer: GPUBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-  
-    const sampler = device.createSampler({
+
+    const sampler: GPUSampler = device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
     });
-  
-    const uniformBindGroup = device.createBindGroup({
+
+    const uniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -195,7 +195,7 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         },
       ],
     });
-  
+
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
@@ -206,29 +206,29 @@ export class GpuExamplesCubeMapComponent implements OnInit {
       ],
       depthStencilAttachment: {
         view: depthTexture.createView(),
-  
+
         depthClearValue: 1.0,
         depthLoadOp: 'clear',
         depthStoreOp: 'store',
       },
     };
-  
+
     const aspect = presentationSize[0] / presentationSize[1];
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 3000);
-  
+
     const modelMatrix = mat4.create();
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(1000, 1000, 1000));
     const modelViewProjectionMatrix = mat4.create() as Float32Array;
     const viewMatrix = mat4.create();
-  
+
     const tmpMat4 = mat4.create();
-  
+
     // Comppute camera movement:
     // It rotates around Y axis with a slight pitch movement.
     function updateTransformationMatrix() {
       const now = Date.now() / 800;
-  
+
       mat4.rotate(
         tmpMat4,
         viewMatrix,
@@ -236,7 +236,7 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         vec3.fromValues(1, 0, 0)
       );
       mat4.rotate(tmpMat4, tmpMat4, now * 0.2, vec3.fromValues(0, 1, 0));
-  
+
       mat4.multiply(modelViewProjectionMatrix, tmpMat4, modelMatrix);
       mat4.multiply(
         modelViewProjectionMatrix,
@@ -244,11 +244,11 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         modelViewProjectionMatrix
       );
     }
-  
+
     const frame = () => {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
-  
+
       updateTransformationMatrix();
       device.queue.writeBuffer(
         uniformBuffer,
@@ -257,22 +257,21 @@ export class GpuExamplesCubeMapComponent implements OnInit {
         modelViewProjectionMatrix.byteOffset,
         modelViewProjectionMatrix.byteLength
       );
-  
-      renderPassDescriptor.colorAttachments[0].view = context
-        .getCurrentTexture()
-        .createView();
-  
-      const commandEncoder = device.createCommandEncoder();
-      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+      renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
+
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+      const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setVertexBuffer(0, verticesBuffer);
       passEncoder.setBindGroup(0, uniformBindGroup);
       passEncoder.draw(cubeVertexCount, 1, 0, 0);
       passEncoder.end();
       device.queue.submit([commandEncoder.finish()]);
-  
+
       requestAnimationFrame(frame);
     }
+
     requestAnimationFrame(frame);
   }
 

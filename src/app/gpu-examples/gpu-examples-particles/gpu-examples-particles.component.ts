@@ -257,14 +257,14 @@ export class GpuExamplesParticlesComponent implements OnInit {
     // probabilities up to the top 1x1 mip level.
     //////////////////////////////////////////////////////////////////////////////
     {
-      const probabilityMapImportLevelPipeline = device.createComputePipeline({
+      const probabilityMapImportLevelPipeline: GPUComputePipeline = await device.createComputePipelineAsync({
         compute: {
           module: device.createShaderModule({ code: probabilityMapWGSL }),
           entryPoint: 'import_level',
         },
         layout: 'auto'
       });
-      const probabilityMapExportLevelPipeline = device.createComputePipeline({
+      const probabilityMapExportLevelPipeline: GPUComputePipeline = await device.createComputePipelineAsync({
         compute: {
           module: device.createShaderModule({ code: probabilityMapWGSL }),
           entryPoint: 'export_level',
@@ -370,7 +370,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       this.gui.add(simulationParams, k);
     });
 
-    const computePipeline = device.createComputePipeline({
+    const computePipeline: GPUComputePipeline = await device.createComputePipelineAsync({
       compute: {
         module: device.createShaderModule({
           code: particleWGSL,
