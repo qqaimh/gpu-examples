@@ -251,7 +251,7 @@ export class GpuExamplesImageBlurComponent implements OnInit {
         new Uint32Array([settings.filterSize, blockDim])
       );
     };
-    this.gui.add(settings, 'filterSize', 1, 33).step(2).onChange(updateSettings);
+    this.gui.add(settings, 'filterSize', 1, 33).step(1).onChange(updateSettings);
     this.gui.add(settings, 'iterations', 1, 10).step(1);
 
     updateSettings();

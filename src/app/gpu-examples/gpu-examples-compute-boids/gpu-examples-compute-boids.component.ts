@@ -10,9 +10,9 @@ import updateSpritesWGSL from './shaders/updateSprites.wgsl';
   styleUrls: ['./gpu-examples-compute-boids.component.scss']
 })
 export class GpuExamplesComputeBoidsComponent implements OnInit {
-  @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
+  @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
 
-  gui: dat.GUI  = new dat.GUI({ autoPlace: false });
+  gui: dat.GUI = new dat.GUI({ autoPlace: false });
 
   constructor(private ele: ElementRef) { }
 
@@ -21,13 +21,13 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
     this.draw();
   }
 
-  async draw()  {
+  async draw() {
     const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
     const device: GPUDevice = await adapter.requestDevice();
-  
+
     if (!this.theCanvas.nativeElement) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
-  
+
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
@@ -40,7 +40,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       size: presentationSize,
       alphaMode: 'premultiplied'
     });
-  
+
     const spriteShaderModule: GPUShaderModule = device.createShaderModule({ code: spriteWGSL });
     const renderPipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
       vertex: {
@@ -59,7 +59,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
                 format: 'float32x2',
               },
               {
-                // instance velocity
+                // instance velocity（速度）
                 shaderLocation: 1,
                 offset: 2 * 4,
                 format: 'float32x2',
@@ -95,7 +95,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       },
       layout: 'auto'
     });
-  
+
     const computePipeline: GPUComputePipeline = await device.createComputePipelineAsync({
       compute: {
         module: device.createShaderModule({
@@ -105,7 +105,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       },
       layout: 'auto'
     });
-  
+
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
@@ -116,7 +116,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         },
       ],
     };
-  
+
     const vertexBufferData = new Float32Array([
       -0.01, -0.02, 0.01,
       -0.02, 0.0, 0.02,
@@ -128,22 +128,22 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
     });
     new Float32Array(spriteVertexBuffer.getMappedRange()).set(vertexBufferData);
     spriteVertexBuffer.unmap();
-  
+
     const simParams = {
       deltaT: 0.04,
-      rule1Distance: 0.1,  // 如果两个个体之间的距离小于0.1，我们认为他们是一个群体
+      rule1Distance: 0.1,    // 如果两个个体之间的距离小于0.1，我们认为他们是一个群体
       rule2Distance: 0.025,  // 如果两个个体之间的距离小于0.025，则认为他们靠的太近，需要分开一点点
-      rule3Distance: 0.025, // 如果两个个体之间的距离小于0.03，则认为他们离的太远，希望他们靠近彼此一些
-      rule1Scale: 0.02,   // 规则1的权重
-      rule2Scale: 0.05,   // 规则2的权重
-      rule3Scale: 0.005,   // 规则3的权重
+      rule3Distance: 0.025,  // 如果两个个体之间的距离小于0.03，则认为他们离的太远，希望他们靠近彼此一些
+      rule1Scale: 0.02,      // 规则1的权重
+      rule2Scale: 0.05,     // 规则2的权重
+      rule3Scale: 0.005,    // 规则3的权重
     };
     const simParamBufferSize = 7 * Float32Array.BYTES_PER_ELEMENT;
     const simParamBuffer = device.createBuffer({
       size: simParamBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-  
+
     function updateSimParams() {
       device.queue.writeBuffer(
         simParamBuffer,
@@ -159,12 +159,12 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         ])
       );
     }
-  
     updateSimParams();
     Object.keys(simParams).forEach((k) => {
       this.gui.add(simParams, k).onFinishChange(updateSimParams);
     });
-  
+
+    // 构建鸟群初始数据，前两位是鸟的位置，后两位是鸟的速度矢量
     const numParticles = 1500;
     const initialParticleData = new Float32Array(numParticles * 4);
     for (let i = 0; i < numParticles; ++i) {
@@ -173,7 +173,11 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       initialParticleData[4 * i + 2] = 2 * (Math.random() - 0.5) * 0.1;
       initialParticleData[4 * i + 3] = 2 * (Math.random() - 0.5) * 0.1;
     }
-  
+
+    /*
+      使用2套 GPUBuffer 和 GPUBindGroup 对象，一套用于存储当前的鸟群信息（包括位置、速度），另一套用于存储计算的结果。
+      计算完毕后我们需要将两套对象交换一下顺序，也就是说，拿第一次的结果当做第二次的输入，用第一次的输入来接收第二次的计算结果。
+    */
     const particleBuffers: GPUBuffer[] = new Array(2);
     const particleBindGroups: GPUBindGroup[] = new Array(2);
     for (let i = 0; i < 2; ++i) {
@@ -187,7 +191,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       );
       particleBuffers[i].unmap();
     }
-  
+
     for (let i = 0; i < 2; ++i) {
       particleBindGroups[i] = device.createBindGroup({
         layout: computePipeline.getBindGroupLayout(0),
@@ -217,15 +221,20 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         ],
       });
     }
-  
+
     let t = 0;
     const frame = () => {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
-  
+
       renderPassDescriptor.colorAttachments[0].view = context.getCurrentTexture().createView();
-  
+
       const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
+
+      /*
+        使用2套 GPUBuffer 和 GPUBindGroup 对象，一套用于存储当前的鸟群信息（包括位置、速度），另一套用于存储计算的结果。
+        计算完毕后我们需要将两套对象交换一下顺序，也就是说，拿第一次的结果当做第二次的输入，用第一次的输入来接收第二次的计算结果。
+      */
       {
         const passEncoder: GPUComputePassEncoder = commandEncoder.beginComputePass();
         passEncoder.setPipeline(computePipeline);
@@ -243,7 +252,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         passEncoder.end();
       }
       device.queue.submit([commandEncoder.finish()]);
-  
+
       ++t;
       requestAnimationFrame(frame);
     }
