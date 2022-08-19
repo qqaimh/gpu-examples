@@ -49,8 +49,9 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
         buffers: [
           {
             // instanced particles buffer
+            // 如果我们采用了多实例绘制的方法来绘制图形，并且希望不同的实例之间读取到的buffer数据是不同的，我们就需要使用到这种 instance 的模式
             arrayStride: 4 * 4,
-            stepMode: 'instance',
+            stepMode: 'instance',  // 顶点数据的地址基于 arrayStride 不断的进行累加，但是在两个实例之间，顶点数据的地址不会被重置
             attributes: [
               {
                 // instance position
@@ -59,7 +60,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
                 format: 'float32x2',
               },
               {
-                // instance velocity（速度）
+                // instance velocity
                 shaderLocation: 1,
                 offset: 2 * 4,
                 format: 'float32x2',
@@ -69,7 +70,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
           {
             // vertex buffer
             arrayStride: 2 * 4,
-            stepMode: 'vertex',
+            stepMode: 'vertex',  // 顶点数据的地址基于 arrayStride 不断的进行累加，但是在两个实例之间，顶点数据的地址会被重置
             attributes: [
               {
                 // vertex positions
@@ -117,6 +118,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
       ],
     };
 
+    // 代表鸟的三角形三个顶点
     const vertexBufferData = new Float32Array([
       -0.01, -0.02, 0.01,
       -0.02, 0.0, 0.02,
