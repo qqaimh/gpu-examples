@@ -18,7 +18,7 @@ struct FragmentInput {
 };
 
 const albedo : vec3<f32> = vec3<f32>(0.9, 0.9, 0.9);
-const ambientFactor : f32 = 0.2;
+const ambientFactor : f32 = 0.2;  // 表示环境光照，这样可以使物体的暗部看起来没那么的黑
 
 @fragment
 fn main(input : FragmentInput) -> @location(0) vec4<f32> {
@@ -39,6 +39,7 @@ fn main(input : FragmentInput) -> @location(0) vec4<f32> {
   }
   visibility = visibility / 9.0;
 
+  // 这里 dot 表示求入射光线与物体法线的投影，也就是表示入射光线与物体法线的相近程度。后续的 max 表示，如果是物体背面则为0。
   let lambertFactor : f32 = max(dot(normalize(scene.lightPos - input.fragPos), input.fragNorm), 0.0);
 
   let lightingFactor : f32 = min(ambientFactor + visibility * lambertFactor, 1.0);

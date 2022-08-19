@@ -64,7 +64,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
 
     // Create the model index buffer.
     const indexCount = mesh.triangles.length * 3;
-    const indexBuffer = device.createBuffer({
+    const indexBuffer: GPUBuffer = device.createBuffer({
       size: indexCount * Uint16Array.BYTES_PER_ELEMENT,
       usage: GPUBufferUsage.INDEX,
       mappedAtCreation: true,
@@ -149,7 +149,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
     // Create a bind group layout which holds the scene uniforms and
     // the texture+sampler for depth. We create it manually because the WebPU
     // implementation doesn't infer this from the shader (yet).
-    const bglForRender = device.createBindGroupLayout({
+    const bglForRender: GPUBindGroupLayout = device.createBindGroupLayout({
       entries: [
         {
           binding: 0,

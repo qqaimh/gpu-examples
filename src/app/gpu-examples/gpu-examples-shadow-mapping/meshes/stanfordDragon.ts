@@ -8,7 +8,7 @@ export const mesh = {
   uvs: [] as [number, number][],
 };
 
-// Compute surface normals
+// Compute surface normals. 计算表面法线
 mesh.normals = computeSurfaceNormals(mesh.positions, mesh.triangles);
 
 // Compute some easy uvs for testing
