@@ -2,7 +2,7 @@ import { TinyGltfWebGpu } from './tiny-gltf'
 
 import commonWGSL from '../shaders/common.wgsl';
 
-import { wgsl } from '../../../../node_modules/wgsl-preprocessor/wgsl-preprocessor.js';
+import { wgsl } from 'wgsl-preprocessor/wgsl-preprocessor';
 
 // We can map the attributes to any location index we want as long as we're consistent
 // between the pipeline definitions and the shader source.

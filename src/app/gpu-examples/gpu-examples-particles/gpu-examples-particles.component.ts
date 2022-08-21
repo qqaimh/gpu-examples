@@ -297,7 +297,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       for (let level = 0; level < numMipLevels; level++) {
         const levelWidth = textureWidth >> level;
         const levelHeight = textureHeight >> level;
-        const pipeline =
+        const pipeline: GPUBindGroupLayout =
           level == 0
             ? probabilityMapImportLevelPipeline.getBindGroupLayout(0)
             : probabilityMapExportLevelPipeline.getBindGroupLayout(0);
@@ -332,13 +332,13 @@ export class GpuExamplesParticlesComponent implements OnInit {
           ],
         });
         if (level == 0) {
-          const passEncoder = commandEncoder.beginComputePass();
+          const passEncoder: GPUComputePassEncoder = commandEncoder.beginComputePass();
           passEncoder.setPipeline(probabilityMapImportLevelPipeline);
           passEncoder.setBindGroup(0, probabilityMapBindGroup);
           passEncoder.dispatchWorkgroups(Math.ceil(levelWidth / 64), levelHeight);
           passEncoder.end();
         } else {
-          const passEncoder = commandEncoder.beginComputePass();
+          const passEncoder: GPUComputePassEncoder = commandEncoder.beginComputePass();
           passEncoder.setPipeline(probabilityMapExportLevelPipeline);
           passEncoder.setBindGroup(0, probabilityMapBindGroup);
           passEncoder.dispatchWorkgroups(Math.ceil(levelWidth / 64), levelHeight);

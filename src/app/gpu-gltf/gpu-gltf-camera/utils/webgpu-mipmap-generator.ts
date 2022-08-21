@@ -1,12 +1,12 @@
 // This is from https://github.com/toji/web-texture-tool, copied here for convenience.
 
 export class WebGPUMipmapGenerator {
-    device;
+    device: GPUDevice;
     sampler;
     pipelines;
     mipmapShaderModule;
 
-    constructor(device) {
+    constructor(device: GPUDevice) {
       this.device = device;
       this.sampler = device.createSampler({minFilter: 'linear'});
       // We'll need a new pipeline for every texture format used.
@@ -14,7 +14,7 @@ export class WebGPUMipmapGenerator {
     }
   
     getMipmapPipeline(format) {
-      let pipeline = this.pipelines[format];
+      let pipeline: GPURenderPipeline = this.pipelines[format];
       if (!pipeline) {
         // Shader modules is shared between all pipelines, so only create once.
         if (!this.mipmapShaderModule) {
@@ -123,7 +123,7 @@ export class WebGPUMipmapGenerator {
             arrayLayerCount: 1,
           });
   
-          const passEncoder = commandEncoder.beginRenderPass({
+          const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass({
             colorAttachments: [{
               view: dstView,
               loadOp: 'clear',
@@ -131,7 +131,7 @@ export class WebGPUMipmapGenerator {
             }],
           });
   
-          const bindGroup = this.device.createBindGroup({
+          const bindGroup: GPUBindGroup = this.device.createBindGroup({
             layout: bindGroupLayout,
             entries: [{
               binding: 0,

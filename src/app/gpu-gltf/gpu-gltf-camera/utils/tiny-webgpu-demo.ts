@@ -31,9 +31,9 @@ export class TinyWebGpuDemo {
   context: GPUCanvasContext;
   pane;
   camera;
-  resizeObserver;
+  resizeObserver: ResizeObserverHelper;
   frameUniformBuffer: GPUBuffer;
-  frameBindGroupLayout;
+  frameBindGroupLayout: GPUBindGroupLayout;
   frameBindGroup;
   statsFolder;
   msaaColorTexture: GPUTexture;

@@ -3,10 +3,8 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { vec3, mat4 } from 'gl-matrix';
 import {FolderApi, Pane} from 'tweakpane';
 
-
-import commonWGSL from '../shaders/common.wgsl';
-import { GltfDemo } from '../utils/gltf-demo';
-import { GltfRenderer } from '../utils/gltfRenderer';
+import { GltfDemo } from './utils/gltf-demo';
+import { GltfRenderer } from './utils/gltfRenderer';
 
 
 @Component({
