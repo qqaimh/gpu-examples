@@ -52,16 +52,17 @@ export class TinyWebGpuDemo {
 
     this.camera = new OrbitCamera(this.canvas);
 
-    this.resizeObserver = new ResizeObserverHelper(this.canvas, (width, height) => {
+    this.resizeObserver = new ResizeObserverHelper(document.body, () => {
+      const {width, height, x, y} = this.canvas.getBoundingClientRect();
       if (width == 0 || height == 0) { return; }
 
-      this.canvas.width = width;
-      this.canvas.height = height;
+      this.canvas.width = document.body.clientWidth - x;
+      this.canvas.height = document.body.clientHeight - y;
 
       this.updateProjection();
 
       if (this.device) {
-        const size = {width, height};
+        const size = {width: document.body.clientWidth - x, height: document.body.clientHeight - y};
         this.#allocateRenderTargets(size);
         this.onResize(this.device, size);
       }
@@ -87,7 +88,7 @@ export class TinyWebGpuDemo {
     this.#initWebGPU().then(() => {
       // Make sure the resize callback has a chance to fire at least once now that the device is
       // initialized.
-      this.resizeObserver.callback(this.canvas.width, this.canvas.height);
+      this.resizeObserver.callback();
       // Start the render loop.
       requestAnimationFrame(frameCallback);
     }).catch((error) => {
@@ -115,7 +116,8 @@ export class TinyWebGpuDemo {
   }
 
   updateProjection() {
-    const aspect = this.canvas.width / this.canvas.height;
+    const { x, y} = this.canvas.getBoundingClientRect();
+    const aspect = (document.body.clientWidth - x) / (document.body.clientHeight - y);
     // Using mat4.perspectiveZO instead of mat4.perpective because WebGPU's
     // normalized device coordinates Z range is [0, 1], instead of WebGL's [-1, 1]
     mat4.perspectiveZO(this.#projectionMatrix, this.fov, aspect, this.zNear, this.zFar);
@@ -251,18 +253,7 @@ class ResizeObserverHelper extends ResizeObserver {
     super(entries => {
       for (let entry of entries) {
         if (entry.target != element) { continue; }
-        console.log(4444,entry)
-        if (entry.devicePixelContentBoxSize) {
-          // Should give exact pixel dimensions, but only works on Chrome.
-          const devicePixelSize = entry.devicePixelContentBoxSize[0];
-          callback(devicePixelSize.inlineSize, devicePixelSize.blockSize);
-        } else if (entry.contentBoxSize) {
-          // Firefox implements `contentBoxSize` as a single content rect, rather than an array
-          const contentBoxSize = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
-          callback(contentBoxSize.inlineSize, contentBoxSize.blockSize);
-        } else {
-          callback(entry.contentRect.width, entry.contentRect.height);
-        }
+        callback();
       }
     });
 
