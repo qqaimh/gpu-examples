@@ -36,18 +36,18 @@ export class GpuExamplesParticlesComponent implements OnInit {
 
   // This example demonstrates rendering of particles simulated with compute shaders.
   async draw() {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
+    const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
+    const device: GPUDevice = await adapter.requestDevice();
 
     if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
     const devicePixelRatio = window.devicePixelRatio || 1;
     const presentationSize = [
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
@@ -56,7 +56,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       alphaMode: 'premultiplied'
     });
 
-    const particlesBuffer = device.createBuffer({
+    const particlesBuffer: GPUBuffer = device.createBuffer({
       size: numParticles * particleInstanceByteSize,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE,
     });
