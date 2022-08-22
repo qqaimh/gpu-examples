@@ -12,7 +12,11 @@ export class GpuGltfComponent implements OnInit {
       name: 'camera',
       url: './camera',
     },
-  ]
+    {
+      name: 'shadow',
+      url: './shadow',
+    }
+  ];
 
   constructor() { }
 

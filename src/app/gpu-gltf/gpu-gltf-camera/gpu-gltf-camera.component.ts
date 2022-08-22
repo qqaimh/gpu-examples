@@ -1,11 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
-import { vec3, mat4 } from 'gl-matrix';
-import {FolderApi, Pane} from 'tweakpane';
-
 import { GltfDemo } from './utils/gltf-demo';
 import { GltfRenderer } from './utils/gltfRenderer';
-
 
 @Component({
   selector: 'app-gpu-gltf-camera',

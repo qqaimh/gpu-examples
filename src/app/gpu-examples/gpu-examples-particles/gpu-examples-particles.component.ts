@@ -137,7 +137,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       layout: 'auto'
     });
 
-    const depthTexture = device.createTexture({
+    const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -150,12 +150,12 @@ export class GpuExamplesParticlesComponent implements OnInit {
       3 * 4 + // up : vec3<f32>
       4 + // padding
       0;
-    const uniformBuffer = device.createBuffer({
+    const uniformBuffer: GPUBuffer = device.createBuffer({
       size: uniformBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const uniformBindGroup = device.createBindGroup({
+    const uniformBindGroup: GPUBindGroup = device.createBindGroup({
       layout: renderPipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -188,7 +188,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
     //////////////////////////////////////////////////////////////////////////////
     // Quad vertex buffer
     //////////////////////////////////////////////////////////////////////////////
-    const quadVertexBuffer = device.createBuffer({
+    const quadVertexBuffer: GPUBuffer = device.createBuffer({
       size: 6 * 2 * 4, // 6x vec2<f32>
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
@@ -222,7 +222,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       const img = document.createElement('img');
       img.src = '../../assets/img/webgpu.png';
       await img.decode();
-      const imageBitmap = await createImageBitmap(img);
+      const imageBitmap: ImageBitmap = await createImageBitmap(img);
 
       // Calculate number of mip levels required to generate the probability map
       while (
@@ -276,15 +276,15 @@ export class GpuExamplesParticlesComponent implements OnInit {
         1 * 4 + // stride
         3 * 4 + // padding
         0;
-      const probabilityMapUBOBuffer = device.createBuffer({
+      const probabilityMapUBOBuffer: GPUBuffer = device.createBuffer({
         size: probabilityMapUBOBufferSize,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       });
-      const buffer_a = device.createBuffer({
+      const buffer_a: GPUBuffer = device.createBuffer({
         size: textureWidth * textureHeight * 4,
         usage: GPUBufferUsage.STORAGE,
       });
-      const buffer_b = device.createBuffer({
+      const buffer_b: GPUBuffer = device.createBuffer({
         size: textureWidth * textureHeight * 4,
         usage: GPUBufferUsage.STORAGE,
       });
@@ -293,7 +293,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
         0,
         new Int32Array([textureWidth])
       );
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       for (let level = 0; level < numMipLevels; level++) {
         const levelWidth = textureWidth >> level;
         const levelHeight = textureHeight >> level;
@@ -301,7 +301,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
           level == 0
             ? probabilityMapImportLevelPipeline.getBindGroupLayout(0)
             : probabilityMapExportLevelPipeline.getBindGroupLayout(0);
-        const probabilityMapBindGroup = device.createBindGroup({
+        const probabilityMapBindGroup: GPUBindGroup = device.createBindGroup({
           layout: pipeline,
           entries: [
             {
@@ -361,7 +361,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       3 * 4 + // padding
       4 * 4 + // seed
       0;
-    const simulationUBOBuffer = device.createBuffer({
+    const simulationUBOBuffer: GPUBuffer = device.createBuffer({
       size: simulationUBOBufferSize,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
@@ -379,7 +379,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       },
       layout: 'auto'
     });
-    const computeBindGroup = device.createBindGroup({
+    const computeBindGroup: GPUBindGroup = device.createBindGroup({
       layout: computePipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -453,19 +453,19 @@ export class GpuExamplesParticlesComponent implements OnInit {
           0, // padding
         ])
       );
-      const swapChainTexture = context.getCurrentTexture();
+      const swapChainTexture: GPUTexture = context.getCurrentTexture();
       renderPassDescriptor.colorAttachments[0].view = swapChainTexture.createView();
 
-      const commandEncoder = device.createCommandEncoder();
+      const commandEncoder: GPUCommandEncoder = device.createCommandEncoder();
       {
-        const passEncoder = commandEncoder.beginComputePass();
+        const passEncoder: GPUComputePassEncoder = commandEncoder.beginComputePass();
         passEncoder.setPipeline(computePipeline);
         passEncoder.setBindGroup(0, computeBindGroup);
         passEncoder.dispatchWorkgroups(Math.ceil(numParticles / 64));
         passEncoder.end();
       }
       {
-        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+        const passEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
         passEncoder.setPipeline(renderPipeline);
         passEncoder.setBindGroup(0, uniformBindGroup);
         passEncoder.setVertexBuffer(0, particlesBuffer);

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { GpuGltfCameraComponent } from './gpu-gltf-camera/gpu-gltf-camera.component';
+import { GpuGltfShadowComponent } from './gpu-gltf-shadow/gpu-gltf-shadow.component';
 import { GpuGltfComponent } from './gpu-gltf.component';
 
 const routes: Routes = [
@@ -11,6 +12,10 @@ const routes: Routes = [
       {
         path: 'camera',
         component: GpuGltfCameraComponent
+      },
+      {
+        path: 'shadow',
+        component: GpuGltfShadowComponent
       },
       {
         path: '',
