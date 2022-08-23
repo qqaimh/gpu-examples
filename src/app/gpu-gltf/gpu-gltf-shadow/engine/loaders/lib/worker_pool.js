@@ -15,7 +15,9 @@ export class WorkerPool {
   #nextWorker = 0;
 
   constructor(workerPath, maxWorkerPoolSize = 4) {
-    this.#workerPath = workerPath;
+    console.log(44444, workerPath)
+    const blob = new Blob([`importScripts(${workerPath})`], {"type": 'application/javascript'});
+    this.#workerPath = window.URL.createObjectURL(blob);
     this.#maxWorkerPoolSize = maxWorkerPoolSize;
 
     this.#onMessage = (msg) => {
@@ -41,7 +43,7 @@ export class WorkerPool {
     if (this.#pendingWorkItems.size >= this.#workerPool.length &&
         this.#workerPool.length < this.#maxWorkerPoolSize) {
       // Add a new worker
-      const worker = new Worker(this.#workerPath);
+      const worker = new Worker(this.#workerPath, { type: 'module'});
       worker.onmessage = this.#onMessage;
       this.#workerPool.push(worker);
       return worker;

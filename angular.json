@@ -40,7 +40,8 @@
             "customWebpackConfig": {
               "path": "./webpack-wgsl.config.js",
               "replaceDuplicatePlugins": true
-            }
+            },
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {

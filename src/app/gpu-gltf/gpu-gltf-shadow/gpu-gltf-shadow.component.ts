@@ -110,7 +110,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     camera.add(flyingControls);
 
     // Add a skybox
-    world.create(new Skybox(renderer.textureLoader.fromUrl('../../../../assets/media/textures/skybox/cube-basis-mipmap.ktx2')));
+    world.create(new Skybox(renderer['textureLoader'].fromUrl('../../../assets/media/textures/skybox/cube-basis-mipmap.ktx2')));
 
 
 
@@ -128,7 +128,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     );
 
     // Load a scene
-    gltfLoader.instanceFromUrl(world, '../../../../assets/media/models/city-set-draco.glb', bvh);
+    gltfLoader.instanceFromUrl(world, '../../../assets/media/models/city-set-draco.glb', bvh);
 
     /*gltfLoader.instanceFromUrl(world, './media/models/new_sponza.glb', bvh);
     gltfLoader.instanceFromUrl(world, './media/models/new_sponza_ivy.glb', bvh);
@@ -154,7 +154,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
 
       if (this.appSettings.showShadowMap) {
         world.registerRenderSystem(WebGPUTextureDebugSystem);
-        world.create(new WebGPUDebugTextureView(renderer.shadowDepthTexture.createView(), true));
+        world.create(new WebGPUDebugTextureView(renderer['shadowDepthTexture'].createView(), true));
       } else {
         world.removeSystem(WebGPUTextureDebugSystem);
       }
@@ -185,7 +185,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     });
 
     this.gui.add(this.appSettings, 'visualizeCascades').onChange(() => {
-      shadowCastingLight.visualizeCascades = this.appSettings.visualizeCascades;
+      shadowCastingLight['visualizeCascades'] = this.appSettings.visualizeCascades;
     });
 
     /*this.gui.add(appSettings, 'visualizeBVH').onChange(() => {

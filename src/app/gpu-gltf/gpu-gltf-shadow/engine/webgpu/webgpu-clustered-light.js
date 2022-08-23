@@ -15,11 +15,11 @@ export class WebGPUClusteredLights extends WebGPUSystem {
   #outputSize = {width: 0, height: 0};
   #zRange = [0, 0];
 
-  init(gpu) {
+  async init(gpu) {
     const device = gpu.device;
 
     // Pipeline creation
-    device.createComputePipelineAsync({
+    this.boundsPipeline = await device.createComputePipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           gpu.bindGroupLayouts.frame,
@@ -30,8 +30,6 @@ export class WebGPUClusteredLights extends WebGPUSystem {
         module: device.createShaderModule({ code: ClusterBoundsSource, label: "Cluster Bounds" }),
         entryPoint: 'computeMain',
       }
-    }).then((pipeline) => {
-      this.boundsPipeline = pipeline;
     });
 
     device.createComputePipelineAsync({

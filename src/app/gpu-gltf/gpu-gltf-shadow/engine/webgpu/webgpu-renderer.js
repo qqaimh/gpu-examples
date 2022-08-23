@@ -3,7 +3,7 @@ import { WebGPURenderTargets } from './webgpu-render-targets.js';
 import { WebGPURenderBatch } from './webgpu-render-batch.js';
 import { WebGPUBufferManager } from './webgpu-buffer.js';
 import { WebGPUBindGroupLayouts } from './webgpu-bind-group-layouts.js'
-import { WebGPUTextureLoader } from "web-texture-tool/build/webgpu-texture-loader.js"
+import { WebGPUTextureLoader } from "../../web-texture-tool/webgpu-texture-loader.js"
 
 const desiredFeatures = [
   'texture-compression-bc'
