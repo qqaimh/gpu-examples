@@ -80,11 +80,11 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
   }
 
   async draw() {
-    document.body.appendChild(this.gui.domElement);
+    this.ele.nativeElement.appendChild(this.gui.domElement);
 
-    document.body.appendChild(this.stats.dom);
+    this.ele.nativeElement.appendChild(this.stats.dom);
 
-    const canvas = document.querySelector('canvas');
+    const canvas: HTMLCanvasElement = this.theCanvas.nativeElement as HTMLCanvasElement;
 
     const world = new WebGPUWorld(canvas);
     world.registerSystem(FlyingControlsSystem);
@@ -110,7 +110,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     camera.add(flyingControls);
 
     // Add a skybox
-    world.create(new Skybox(renderer.textureLoader.fromUrl('./media/textures/skybox/cube-basis-mipmap.ktx2')));
+    world.create(new Skybox(renderer.textureLoader.fromUrl('../../../../assets/media/textures/skybox/cube-basis-mipmap.ktx2')));
 
 
 
@@ -128,7 +128,7 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     );
 
     // Load a scene
-    gltfLoader.instanceFromUrl(world, './media/models/city-set-draco.glb', bvh);
+    gltfLoader.instanceFromUrl(world, '../../../../assets/media/models/city-set-draco.glb', bvh);
 
     /*gltfLoader.instanceFromUrl(world, './media/models/new_sponza.glb', bvh);
     gltfLoader.instanceFromUrl(world, './media/models/new_sponza_ivy.glb', bvh);

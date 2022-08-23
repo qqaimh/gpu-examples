@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --allowed-hosts all",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -20,15 +20,16 @@
     "@angular/router": "^14.1.1",
     "dat.gui": "^0.7.9",
     "gl-matrix": "^3.4.3",
+    "matter-js": "^0.18.0",
     "monaco-editor": "^0.34.0",
     "rxjs": "~7.5.6",
     "stanford-dragon": "^1.1.1",
     "stats.js": "^0.17.0",
     "tslib": "^2.4.0",
     "tweakpane": "^3.1.0",
+    "web-texture-tool": "git+https://github.com/qqaimh/web-texture-tool.git",
     "wgsl-preprocessor": "^1.0.0",
-    "zone.js": "~0.11.7",
-    "web-texture-tool": "github:qqaimh/web-texture-tool"
+    "zone.js": "~0.11.7"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^14.0.1-beta.0",

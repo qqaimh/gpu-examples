@@ -38,7 +38,8 @@
             ],
             "scripts": [],
             "customWebpackConfig": {
-              "path": "./webpack-wgsl.config.js"
+              "path": "./webpack-wgsl.config.js",
+              "replaceDuplicatePlugins": true
             }
           },
           "configurations": {

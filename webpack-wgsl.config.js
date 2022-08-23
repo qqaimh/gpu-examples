@@ -3,5 +3,8 @@ module.exports = {
         rules: [
             { test: /\.wgsl$/i, loader: "ts-shader-loader" }
         ]
-    }
+    },
+    devServer: {
+        allowedHosts: 'all',
+    },
 };
