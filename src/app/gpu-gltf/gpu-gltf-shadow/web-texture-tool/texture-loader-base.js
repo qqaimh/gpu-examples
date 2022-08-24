@@ -245,6 +245,7 @@ export class TextureLoaderBase {
    * @returns {Promise<WebTextureResult>} - Promise which resolves to the completed WebTextureResult.
    */
   async fromUrl(url, textureOptions) {
+    console.log(2222, url)
     if (!this[CLIENT]) {
       throw new Error('Cannot create new textures after object has been destroyed.');
     }

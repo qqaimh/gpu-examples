@@ -415,6 +415,7 @@ export class GltfLoader {
   }
 
   fromUrl(url) {
+    console.log(1111, url)
     return this.#loader.loadFromUrl(url).then(result => {
       const gltfScene = new GltfScene();
       gltfScene.scene = result.scene;

@@ -112,6 +112,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
       layout: 'auto'
     });
 
+    // 深度纹理
     const depthTexture: GPUTexture = device.createTexture({
       size: presentationSize,
       format: 'depth24plus',
