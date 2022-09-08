@@ -7,6 +7,7 @@ import { SharedModule } from '../shared/shared.module';
 import { GpuGltfCameraComponent } from './gpu-gltf-camera/gpu-gltf-camera.component';
 import { GpuGltfShadowComponent } from './gpu-gltf-shadow/gpu-gltf-shadow.component';
 import { GpuGltfKtxComponent } from './gpu-gltf-ktx/gpu-gltf-ktx.component';
+import { GpuGltfMetaballsComponent } from './gpu-gltf-metaballs/gpu-gltf-metaballs.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { GpuGltfKtxComponent } from './gpu-gltf-ktx/gpu-gltf-ktx.component';
     GpuGltfComponent,
     GpuGltfCameraComponent,
     GpuGltfShadowComponent,
-    GpuGltfKtxComponent
+    GpuGltfKtxComponent,
+    GpuGltfMetaballsComponent
   ],
   imports: [
     CommonModule,

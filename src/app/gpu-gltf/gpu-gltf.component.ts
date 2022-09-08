@@ -19,6 +19,10 @@ export class GpuGltfComponent implements OnInit {
     {
       name: 'shadow',
       url: './shadow',
+    },
+    {
+      name: 'metaballs',
+      url: './metaballs',
     }
   ];
 
