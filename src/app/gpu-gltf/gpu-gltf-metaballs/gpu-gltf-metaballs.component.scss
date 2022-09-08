@@ -10,6 +10,8 @@ canvas {
 
 .pane-container {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   top: 0px;
   right: 0px;
 }

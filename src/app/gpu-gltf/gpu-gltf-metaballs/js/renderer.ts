@@ -154,7 +154,7 @@ export class Renderer {
   metaballLightColor: number[];
   metaballTexturePath: string;
   constructor() {
-    this.canvas = document.querySelector('.webgpu-canvas');
+    // this.canvas = document.querySelector('.webgpu-canvas');
     this.camera = null;
     this.rafId = 0;
     this.frameCount = -1;
@@ -305,15 +305,15 @@ export class Renderer {
     switch(style) {
       case 'lava':
         this.metaballLightColor = [0.9, 0.1, 0.0];
-        this.metaballTexturePath = './media/textures/lava.jpg';
+        this.metaballTexturePath = '/lava.jpg';
         break;
       case 'slime':
         this.metaballLightColor = [0.0, 0.9, 0.0];
-        this.metaballTexturePath = './media/textures/slime.png';
+        this.metaballTexturePath = '/slime.png';
         break;
       case 'water':
         this.metaballLightColor = [0.4, 0.5, 0.9];
-        this.metaballTexturePath = './media/textures/water.jpg';
+        this.metaballTexturePath = '/water.jpg';
         break;
       case 'none':
         this.drawMetaballs = false;

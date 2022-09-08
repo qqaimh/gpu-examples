@@ -30,6 +30,8 @@ import { WebGPUglTF } from './webgpu-gltf.js';
 
 import { GPUStats } from './gpu-stats.js';
 
+const GltfRootDir = '../../../../assets/metaballs/textures/';
+
 import {
   MetaballWriteBuffer,
   MetaballNewBuffer,
@@ -54,8 +56,9 @@ const SAMPLE_COUNT = 4;
 const DEPTH_FORMAT = "depth24plus";
 
 export class WebGPURenderer extends Renderer {
-  constructor() {
+  constructor(canvas) {
     super();
+    this.canvas = canvas
 
     this.sampleCount = SAMPLE_COUNT;
     this.contextFormat = 'bgra8unorm';
@@ -332,7 +335,7 @@ export class WebGPURenderer extends Renderer {
   async setMetaballStyle(style) {
     super.setMetaballStyle(style);
 
-    const metaballTexture = await this.textureLoader.fromUrl(this.metaballTexturePath, {colorSpace: 'sRGB'});
+    const metaballTexture = await this.textureLoader.fromUrl(`${GltfRootDir}${this.metaballTexturePath}`, {colorSpace: 'sRGB'});
 
     this.bindGroups.metaball = this.device.createBindGroup({
       layout: this.bindGroupLayouts.metaball,

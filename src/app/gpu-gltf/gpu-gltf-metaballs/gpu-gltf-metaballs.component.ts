@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 
 import * as dat from 'dat.gui';
 import Stats from 'stats.js';
@@ -15,8 +15,9 @@ import { WebGPURenderer } from './js/webgpu-renderer/webgpu-renderer';
 })
 export class GpuGltfMetaballsComponent implements OnInit, AfterViewInit {
   @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
+  @ViewChild('paneContainer', { static: true }) paneContainer!: ElementRef;
 
-  constructor(private ele: ElementRef) { }
+  constructor(private render: Renderer2) { }
 
   ngOnInit(): void {
   }
@@ -30,7 +31,7 @@ export class GpuGltfMetaballsComponent implements OnInit, AfterViewInit {
       let gltf = null;
 
       const stats = new Stats();
-      document.body.appendChild(stats.dom);
+      
 
       const camera = new OrbitCamera();
       camera.target = [0, 1, 0];
@@ -39,7 +40,7 @@ export class GpuGltfMetaballsComponent implements OnInit, AfterViewInit {
       camera.minOrbitX = Math.PI * -0.1;
 
       const appSettings = {
-        scene: './js/media/models/dungeon/dungeon.glb',
+        scene: '../../../assets/metaballs/dungeon/dungeon.glb',
         metaballMethod: 'gpuGenerated',
         renderLightSprites: true,
         renderEnvironment: true,
@@ -110,11 +111,14 @@ export class GpuGltfMetaballsComponent implements OnInit, AfterViewInit {
         renderer.setMetaballStep(appSettings.metaballResolution);
       });
 
-      this.ele.nativeElement.appendChild(gui.domElement);
+      this.paneContainer.nativeElement.appendChild(gui.domElement);
+      this.render.setStyle(stats.domElement, 'position','relative');
+      this.render.setStyle(stats.domElement, 'margin-top','30px')
+      this.paneContainer.nativeElement.appendChild(stats.domElement);
 
-      async function init() {
-        renderer = new WebGPURenderer();
-
+      const init = async() => {
+        renderer = new WebGPURenderer(this.theCanvas.nativeElement);
+       
         try {
           await renderer.init();
           renderer.setStats(stats);
@@ -122,7 +126,6 @@ export class GpuGltfMetaballsComponent implements OnInit, AfterViewInit {
             await renderer.setScene(gltf);
           }
           renderer.camera = camera;
-          document.body.appendChild(renderer.canvas);
           camera.element = renderer.canvas;
           renderer.lightManager.lightCount = appSettings['lightCount'];
           renderer.updateLightRange(appSettings['maxLightRange']);
