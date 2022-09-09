@@ -2,7 +2,7 @@
  * @file Web Worker for loading/transcoding DirectDraw Surface (DDS) texture files
  * @module DDSWorker
  */
-
+/// <reference lib="webworker" />
 importScripts('./worker-util.js');
 
 // All values and structures referenced from:

@@ -173,12 +173,11 @@ const EXTENSION_MIME_TYPES = {
   dds: 'image/vnd.ms-dds',
 };
 
-// 加载图形类资源处理函数
 const EXTENSION_HANDLERS = [
   new ExtensionHandler(ImageLoader.supportedMIMETypes(), () => new ImageLoader()),
-  new ExtensionHandler(['image/basis'], () => new WorkerLoader('workers/basis/basis-worker.js')),
-  new ExtensionHandler(['image/ktx', 'image/ktx2'], () => new WorkerLoader('workers/ktx/ktx-worker.js')),
-  new ExtensionHandler(['image/vnd.ms-dds'], () => new WorkerLoader('workers/dds-worker.js')),
+  new ExtensionHandler(['image/basis'], () => new WorkerLoader('./workers/basis/basis-worker.js')),
+  new ExtensionHandler(['image/ktx', 'image/ktx2'], () => new WorkerLoader('./workers/ktx/ktx-worker.js')),
+  new ExtensionHandler(['image/vnd.ms-dds'], () => new WorkerLoader('./workers/dds-worker.js')),
 ];
 
 const CLIENT = Symbol('wtt/WebTextureClient');
@@ -197,7 +196,6 @@ function getMimeTypeLoader(wtt, mimeType) {
   if (!mimeType) {
     throw new Error('A valid MIME type must be specified.');
   }
-  console.log(5555, wtt[LOADERS])
 
   let typeHandler = wtt[LOADERS][mimeType];
   if (!typeHandler) {
@@ -247,7 +245,6 @@ export class TextureLoaderBase {
    * @returns {Promise<WebTextureResult>} - Promise which resolves to the completed WebTextureResult.
    */
   async fromUrl(url, textureOptions) {
-    console.log(2222, url, textureOptions, this[CLIENT])
     if (!this[CLIENT]) {
       throw new Error('Cannot create new textures after object has been destroyed.');
     }
@@ -304,8 +301,6 @@ export class TextureLoaderBase {
       const extension = extIndex > -1 ? options.filename.substring(extIndex+1).toLowerCase() : null;
       options.mimeType = EXTENSION_MIME_TYPES[extension];
     }
-
-    console.log(6666, this[CLIENT], buffer, options)
 
     const loader = getMimeTypeLoader(this, options.mimeType);
     return loader.fromBuffer(this[CLIENT], buffer, options);

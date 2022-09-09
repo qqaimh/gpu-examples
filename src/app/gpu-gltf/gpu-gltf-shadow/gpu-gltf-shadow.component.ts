@@ -25,7 +25,7 @@ import { WebGPUBloomSystem } from './engine/webgpu/webgpu-bloom.js';
 
 import { WebGPUShadowSettings } from './engine/webgpu/webgpu-shadow.js';
 
-import { BVH } from './engine/util/bvh.js';
+// import { BVH } from './engine/util/bvh.js';
 
 import { vec3, quat } from 'gl-matrix';
 
@@ -41,31 +41,6 @@ import Stats from 'stats.js';
 export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
   @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
 
-  gui = new dat.GUI();
-  stats = new Stats()
-
-  appSettings = {
-    showShadowMap: false,
-    depthBias: 5,
-    depthBiasSlopeScale: 5,
-    shadowMapResolution: 4096,
-    cascadeCount: 3,
-    visualizeCascades: false,
-    lockFrustum: false,
-    enableBloom: true,
-    visualizeBVH: false,
-    bvhVisLevel: 0,
-
-    sunAngle: 0.5,
-  };
-  sunLightTransform = new Transform({ position: [0, 42, -42] });
-  sunTransformDistance = vec3.length(this.sunLightTransform.position);
-  sunDirectionalLight = new DirectionalLight({
-    direction: vec3.normalize(vec3.create(), this.sunLightTransform.position),
-    color: [1, 1, 0.8],
-    intensity: 7
-  });
-
   constructor(private ele: ElementRef) {
 
   }
@@ -80,153 +55,143 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
   }
 
   async draw() {
-    this.ele.nativeElement.appendChild(this.gui.domElement);
-
-    this.ele.nativeElement.appendChild(this.stats.dom);
-
-    const canvas: HTMLCanvasElement = this.theCanvas.nativeElement as HTMLCanvasElement;
-
+    const appSettings = {
+      showShadowMap: false,
+      depthBias: 5,
+      depthBiasSlopeScale: 5,
+      shadowMapResolution: 4096,
+      cascadeCount: 3,
+      visualizeCascades: false,
+      lockFrustum: false,
+      enableBloom: true,
+    
+      sunAngle: 0.5,
+    };
+    
+    let gui = new dat.GUI();
+    
+    document.body.appendChild(gui.domElement);
+    
+    const stats = new Stats();
+    document.body.appendChild(stats.dom);
+    
+    const canvas = document.querySelector('canvas');
+    
     const world = new WebGPUWorld(canvas);
-    world.registerSystem(FlyingControlsSystem);
-
+    world
+      .registerSystem(FlyingControlsSystem)
+    
     const renderer = await world.renderer();
-
+    
     const gltfLoader = new GltfLoader(renderer);
-
-    const bvh = new BVH();
-
+    
     const projection = new Camera();
     projection.zNear = 0.25;
-    projection.zFar = 128;
-
+    projection.zFar = 64;
+    
     const camera = world.create(
       new Transform({ position: [0, 2, 10] }),
-      projection,
-      bvh
+      projection
     );
-
+    
     const flyingControls = new FlyingControls();
     flyingControls.speed = 10;
     camera.add(flyingControls);
-
+    
     // Add a skybox
-    world.create(new Skybox(renderer['textureLoader'].fromUrl('../../../assets/media/textures/skybox/cube-basis-mipmap.ktx2')));
-
-
-
+    world.create(new Skybox(renderer['textureLoader'].fromUrl('../../../assets/shadow/textures/skybox/cube-basis-mipmap.ktx2')));
+    
+    const sunLightTransform = new Transform({ position: [0, 42, -42] });
+    const sunTransformDistance = vec3.length(sunLightTransform.position);
+    const sunDirectionalLight = new DirectionalLight({
+      direction: vec3.normalize(vec3.create(), sunLightTransform.position),
+      color: [1, 1, 0.4],
+      intensity: 7
+    });
+    
     const shadowCastingLight = new ShadowCastingLight({
       width: 100, height: 60,
-      textureSize: this.appSettings.shadowMapResolution,
+      textureSize: appSettings.shadowMapResolution,
       cascades: 3,
     });
-
+    
     world.create(
-      this.sunDirectionalLight,
-      this.sunLightTransform,
+      sunDirectionalLight,
+      sunLightTransform,
       shadowCastingLight,
       new AmbientLight(0.02, 0.02, 0.01),
     );
-
-    // Load a scene
-    gltfLoader.instanceFromUrl(world, '../../../assets/media/models/city-set-draco.glb', bvh);
-
-    /*gltfLoader.instanceFromUrl(world, './media/models/new_sponza.glb', bvh);
-    gltfLoader.instanceFromUrl(world, './media/models/new_sponza_ivy.glb', bvh);
-    gltfLoader.instanceFromUrl(world, './media/models/new_sponza_curtains.glb', bvh);*/
-    //gltfLoader.instanceFromUrl(world, './media/models/new_sponza_candles.glb', bvh);
-
-    /*gltfLoader.fromUrl('./media/models/huge-battle-draco.glb').then(scene => {
-          const gltfInstance = scene.createInstance(world, bvh);
-          const transform = gltfInstance.get(Transform);
-          transform.scale[0] = 150;
-          transform.scale[1] = 150;
-          transform.scale[2] = 150;
     
-          world.create(bvh, new Transform({ scale: transform.scale }));
-    });*/
-
-    world.create();
-
-    this.gui.add(this.appSettings, 'showShadowMap').onChange(() => {
+    // Load a scene
+    gltfLoader.instanceFromUrl(world, '../../../assets/shadow/models/city-set-draco.glb');
+    
+    gui.add(appSettings, 'showShadowMap').onChange(() => {
       world.query(WebGPUDebugTextureView).forEach((entity) => {
         entity.destroy();
       });
-
-      if (this.appSettings.showShadowMap) {
+    
+      if (appSettings.showShadowMap) {
         world.registerRenderSystem(WebGPUTextureDebugSystem);
-        world.create(new WebGPUDebugTextureView(renderer['shadowDepthTexture'].createView(), true));
+        world.create(new WebGPUDebugTextureView(renderer['shadowDepthTexture']?.createView(), true));
       } else {
         world.removeSystem(WebGPUTextureDebugSystem);
       }
     });
-
-    this.gui.add(this.appSettings, 'shadowMapResolution').options([
+    
+    gui.add(appSettings, 'shadowMapResolution').options([
       512, 1024, 2048, 4096
     ]).onChange(() => {
-      shadowCastingLight.textureSize = this.appSettings.shadowMapResolution;
-    });
-
-    const shadowSettings = world.singleton.get(WebGPUShadowSettings);
-    shadowSettings.depthBias = this.appSettings.depthBias;
-    shadowSettings.depthBiasSlopeScale = this.appSettings.depthBiasSlopeScale;
-
-    this.gui.add(this.appSettings, 'depthBias').onChange(() => {
-      shadowSettings.depthBias = this.appSettings.depthBias;
-      shadowSettings.updated = true;
-    });
-
-    this.gui.add(this.appSettings, 'depthBiasSlopeScale').onChange(() => {
-      shadowSettings.depthBiasSlopeScale = this.appSettings.depthBiasSlopeScale;
-      shadowSettings.updated = true;
-    });
-
-    this.gui.add(this.appSettings, 'cascadeCount').min(0).max(4).step(1).onChange(() => {
-      shadowCastingLight.cascades = this.appSettings.cascadeCount;
-    });
-
-    this.gui.add(this.appSettings, 'visualizeCascades').onChange(() => {
-      shadowCastingLight['visualizeCascades'] = this.appSettings.visualizeCascades;
-    });
-
-    /*this.gui.add(appSettings, 'visualizeBVH').onChange(() => {
-      if (appSettings.visualizeBVH) {
-        world.registerRenderSystem(BoundsVisualizerSystem);
-      } else {
-        world.removeSystem(BoundsVisualizerSystem);
-      }
+      shadowCastingLight.textureSize = appSettings.shadowMapResolution;
     });
     
-    this.gui.add(appSettings, 'bvhVisLevel').min(-25).max(25).step(1).onChange(() => {
-      bvh.visLevel = appSettings.bvhVisLevel;
-    });*/
-
-    this.gui.add(this.appSettings, 'lockFrustum').onChange(() => {
-      shadowSettings.lockCascadeFrustum = this.appSettings.lockFrustum;
-      projection.lockCullingFrustum = this.appSettings.lockFrustum;
+    const shadowSettings = world.singleton.get(WebGPUShadowSettings);
+    shadowSettings.depthBias = appSettings.depthBias;
+    shadowSettings.depthBiasSlopeScale = appSettings.depthBiasSlopeScale;
+    
+    gui.add(appSettings, 'depthBias').onChange(() => {
+      shadowSettings.depthBias = appSettings.depthBias;
+      shadowSettings.updated = true;
     });
-
-    const updateSun = () => {
-      this.sunLightTransform.position[0] = Math.sin(this.appSettings.sunAngle) * this.sunTransformDistance;
-      this.sunLightTransform.position[2] = Math.cos(this.appSettings.sunAngle) * this.sunTransformDistance;
-      vec3.normalize(this.sunDirectionalLight.direction, this.sunLightTransform.position);
+    
+    gui.add(appSettings, 'depthBiasSlopeScale').onChange(() => {
+      shadowSettings.depthBiasSlopeScale = appSettings.depthBiasSlopeScale;
+      shadowSettings.updated = true;
+    });
+    
+    const cascadeCount = gui.add(appSettings, 'cascadeCount').min(0).max(4).step(1).onChange(() => {
+      shadowCastingLight.cascades = appSettings.cascadeCount;
+    });
+    
+    const visualizeCascades = gui.add(appSettings, 'visualizeCascades').onChange(() => {
+      shadowCastingLight['visualizeCascades'] = appSettings.visualizeCascades;
+    });
+    
+    const lockFrustum = gui.add(appSettings, 'lockFrustum').onChange(() => {
+      shadowSettings.lockCascadeFrustum = appSettings.lockFrustum;
+    });
+    
+    function updateSun() {
+      sunLightTransform.position[0] = Math.sin(appSettings.sunAngle) * sunTransformDistance;
+      sunLightTransform.position[2] = Math.cos(appSettings.sunAngle) * sunTransformDistance;
+      vec3.normalize(sunDirectionalLight.direction, sunLightTransform.position);
     }
-    this.gui.add(this.appSettings, 'sunAngle').min(0).max(Math.PI * 2).step(0.01).onChange(updateSun);
+    gui.add(appSettings, 'sunAngle').min(0).max(Math.PI * 2).step(0.01).onChange(updateSun);
     updateSun();
-
-    this.gui.add(this.appSettings, 'enableBloom').onChange(() => {
-      if (this.appSettings.enableBloom) {
+    
+    gui.add(appSettings, 'enableBloom').onChange(() => {
+      if (appSettings.enableBloom) {
         world.registerRenderSystem(WebGPUBloomSystem);
       } else {
         world.removeSystem(WebGPUBloomSystem);
       }
     });
-
-    const onFrame = () => {
+    
+    function onFrame() {
       requestAnimationFrame(onFrame);
-
-      this.stats.begin();
+    
+      stats.begin();
       world.execute();
-      this.stats.end();
+      stats.end();
     }
     requestAnimationFrame(onFrame);
   }

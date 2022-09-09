@@ -12,32 +12,25 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
   @group(${group}) @binding(6) var<storage, read> lightShadowTable : LightShadowTable;
 
 #if ${flags.shadowSamples == 16}
-  const shadowSampleWidth = 3.0;
+  let sampleWidth = 3.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 16> = array<vec2<f32>, 16>(
     vec2(-1.5, -1.5), vec2(-1.5, -0.5), vec2(-1.5, 0.5), vec2(-1.5, 1.5),
     vec2(-0.5, -1.5), vec2(-0.5, -0.5), vec2(-0.5, 0.5), vec2(-0.5, 1.5),
     vec2(0.5, -1.5), vec2(0.5, -0.5), vec2(0.5, 0.5), vec2(0.5, 1.5),
     vec2(1.5, -1.5), vec2(1.5, -0.5), vec2(1.5, 0.5), vec2(1.5, 1.5)
   );
-#elif ${flags.shadowSamples == 9}
-  const shadowSampleWidth = 3.0;
-  var<private> shadowSampleOffsets : array<vec2<f32>, 9> = array<vec2<f32>, 9>(
-    vec2(-1.0, -1.0), vec2(0.0, -1.0), vec2(1.0, -1.0),
-    vec2(-1.0,  0.0), vec2(0.0,  0.0), vec2(1.0,  0.0),
-    vec2(-1.0,  1.0), vec2(0.0,  1.0), vec2(1.0,  1.0),
-  );
 #elif ${flags.shadowSamples == 4}
-  const shadowSampleWidth = 2.0;
+  let sampleWidth = 2.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 4> = array<vec2<f32>, 4>(
     vec2(-0.5, -0.5), vec2(-0.5, 0.5), vec2(0.5, -0.5), vec2(0.5, 0.5),
   );
 #elif ${flags.shadowSamples == 2}
-  const shadowSampleWidth = 1.0;
+let sampleWidth = 1.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 2> = array<vec2<f32>, 2>(
     vec2(-0.5, -0.5), vec2(0.5, 0.5)
   );
 #elif ${flags.shadowSamples == 1}
-  const shadowSampleWidth = 0.0;
+  let sampleWidth = 0.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 1> = array<vec2<f32>, 1>(
     vec2(0.0, 0.0)
   );
@@ -45,7 +38,7 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
   ERROR: Bad flag. shadowSampleCount must be 16, 4, 2, or 1
 #endif
 
-  const shadowSampleCount = ${flags.shadowSamples}u;
+  let shadowSampleCount = ${flags.shadowSamples}u;
 
   struct ShadowProperties {
     viewport: vec4<f32>,
@@ -86,8 +79,7 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
         lightPos.z / lightPos.w);
 
       // If the shadow falls outside the range covered by this cascade, skip it and try the next one up.
-      if (all(cascade.shadowPos > vec3(texelSize*shadowSampleWidth,0.0)) &&
-          all(cascade.shadowPos < vec3(vec2(1.0)-(texelSize*shadowSampleWidth),1.0))) {
+      if (all(cascade.shadowPos > vec3(texelSize*sampleWidth,0.0)) && all(cascade.shadowPos < vec3(vec2(1.0)-(texelSize*sampleWidth),1.0))) {
         cascade.index = i;
         return cascade;
       }
@@ -164,17 +156,13 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
     let texelSize = 1.0 / vec2<f32>(textureDimensions(shadowTexture, 0));
     let clampRect = vec4(viewport.xy, (viewport.xy+viewport.zw));
 
-    var uv = viewportPos + 0.5;
-    let st = fract(uv);
-    let base_uv = floor(uv) - 0.5;
-
     // Percentage Closer Filtering
     var visibility = 0.0;
     for (var i = 0u; i < shadowSampleCount; i = i + 1u) {
       visibility = visibility + textureSampleCompareLevel(
         shadowTexture, shadowSampler,
-        clamp(base_uv + shadowSampleOffsets[i] * texelSize, clampRect.xy, clampRect.zw),
-        shadowPos.z);
+        clamp(viewportPos + shadowSampleOffsets[i] * texelSize, clampRect.xy, clampRect.zw),
+        shadowPos.z - 0.01);
     }
     return visibility / f32(shadowSampleCount);
   }

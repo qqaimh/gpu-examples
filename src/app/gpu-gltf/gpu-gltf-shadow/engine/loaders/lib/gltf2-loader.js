@@ -8,7 +8,7 @@ class DracoDecoder extends WorkerPool {
   pendingDecodes = new Map();
 
   constructor() {
-    super(`${WORKER_DIR}draco-worker.js`, MAX_WORKER_POOL_SIZE);
+    super('./draco-worker.js', MAX_WORKER_POOL_SIZE);
   }
 
   decode(bufferView, attributes, indexSize) {

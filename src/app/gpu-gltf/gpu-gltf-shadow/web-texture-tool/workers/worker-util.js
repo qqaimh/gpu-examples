@@ -22,7 +22,6 @@ function createTextureMessageHandler(onBufferReady) {
     const url = msg.data.url; // The URL of the basis image OR
     const id = msg.data.id; // A unique ID for the texture
     let buffer = msg.data.buffer; // An array buffer with the file data
-    console.log(7777, url)
 
     if (url) {
       // Make the call to fetch the file data

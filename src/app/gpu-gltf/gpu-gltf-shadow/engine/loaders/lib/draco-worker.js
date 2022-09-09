@@ -1,3 +1,5 @@
+/// <reference lib="webworker" />
+
 importScripts('./worker_service.js');
 importScripts('https://www.gstatic.com/draco/versioned/decoders/1.5.2/draco_decoder_gltf.js');
 

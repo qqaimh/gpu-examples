@@ -36,7 +36,7 @@ export class WebGPURenderTargets extends EventTarget {
     this.context.configure({
       device: device,
       format: this.format,
-      alphaMode: 'opaque',
+      compositingAlphaMode: 'opaque',
     });
 
     this.resizeObserver = new ResizeObserver(entries => {

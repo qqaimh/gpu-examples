@@ -73,40 +73,51 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 export const ClusterBoundsSource = `
   ${CameraStruct(0, 0)}
   ${ClusterStruct(1, 0, 'read_write')}
+
   fn lineIntersectionToZPlane(a : vec3<f32>, b : vec3<f32>, zDistance : f32) -> vec3<f32> {
     let normal = vec3(0.0, 0.0, 1.0);
     let ab =  b - a;
     let t = (zDistance - dot(normal, a)) / dot(normal, ab);
     return a + t * ab;
   }
+
   fn clipToView(clip : vec4<f32>) -> vec4<f32> {
     let view = camera.inverseProjection * clip;
     return view / vec4(view.w, view.w, view.w, view.w);
   }
+
   fn screen2View(screen : vec4<f32>) -> vec4<f32> {
     let texCoord = screen.xy / camera.outputSize.xy;
     let clip = vec4(vec2(texCoord.x, 1.0 - texCoord.y) * 2.0 - vec2(1.0, 1.0), screen.z, screen.w);
     return clipToView(clip);
   }
-  const tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
-  const eyePos = vec3(0.0);
+
+  let tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
+  let eyePos = vec3(0.0);
+
   @compute @workgroup_size(${WORKGROUP_SIZE[0]}, ${WORKGROUP_SIZE[1]}, ${WORKGROUP_SIZE[2]})
   fn computeMain(@builtin(global_invocation_id) global_id : vec3<u32>) {
     let tileIndex : u32 = global_id.x +
                           global_id.y * tileCount.x +
                           global_id.z * tileCount.x * tileCount.y;
+
     let tileSize = vec2(camera.outputSize.x / f32(tileCount.x),
                         camera.outputSize.y / f32(tileCount.y));
+
     let maxPoint_sS = vec4(vec2(f32(global_id.x+1u), f32(global_id.y+1u)) * tileSize, 0.0, 1.0);
     let minPoint_sS = vec4(vec2(f32(global_id.x), f32(global_id.y)) * tileSize, 0.0, 1.0);
+
     let maxPoint_vS = screen2View(maxPoint_sS).xyz;
     let minPoint_vS = screen2View(minPoint_sS).xyz;
+
     let tileNear : f32 = -camera.zNear * pow(camera.zFar/ camera.zNear, f32(global_id.z)/f32(tileCount.z));
     let tileFar : f32 = -camera.zNear * pow(camera.zFar/ camera.zNear, f32(global_id.z+1u)/f32(tileCount.z));
+
     let minPointNear = lineIntersectionToZPlane(eyePos, minPoint_vS, tileNear);
     let minPointFar = lineIntersectionToZPlane(eyePos, minPoint_vS, tileFar);
     let maxPointNear = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileNear);
     let maxPointFar = lineIntersectionToZPlane(eyePos, maxPoint_vS, tileFar);
+
     clusters.bounds[tileIndex].minAABB = min(min(minPointNear, minPointFar),min(maxPointNear, maxPointFar));
     clusters.bounds[tileIndex].maxAABB = max(max(minPointNear, minPointFar),max(maxPointNear, maxPointFar));
   }
@@ -120,14 +131,14 @@ export const ClusterLightsSource = `
 
   ${TileFunctions}
 
-  fn sqDistPointAABB(thepoint : vec3<f32>, minAABB : vec3<f32>, maxAABB : vec3<f32>) -> f32 {
+  fn sqDistPointAABB(point : vec3<f32>, minAABB : vec3<f32>, maxAABB : vec3<f32>) -> f32 {
     var sqDist = 0.0;
     // const minAABB = clusters.bounds[tileIndex].minAABB;
     // const maxAABB = clusters.bounds[tileIndex].maxAABB;
 
     // Wait, does this actually work? Just porting code, but it seems suspect?
     for(var i : i32 = 0; i < 3; i = i + 1) {
-      let v = thepoint[i];
+      let v = point[i];
       if(v < minAABB[i]){
         sqDist = sqDist + (minAABB[i] - v) * (minAABB[i] - v);
       }

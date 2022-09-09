@@ -15,9 +15,7 @@ export class WorkerPool {
   #nextWorker = 0;
 
   constructor(workerPath, maxWorkerPoolSize = 4) {
-    console.log(44444, workerPath)
-    const blob = new Blob([`importScripts(${workerPath})`], {"type": 'application/javascript'});
-    this.#workerPath = window.URL.createObjectURL(blob);
+    this.#workerPath = workerPath;
     this.#maxWorkerPoolSize = maxWorkerPoolSize;
 
     this.#onMessage = (msg) => {
@@ -39,11 +37,11 @@ export class WorkerPool {
   }
 
   #selectWorker(id, resolve, reject) {
-    this.#pendingWorkItems.set(id, {resolve, reject});
+    this.#pendingWorkItems.set(id, { resolve, reject });
     if (this.#pendingWorkItems.size >= this.#workerPool.length &&
-        this.#workerPool.length < this.#maxWorkerPoolSize) {
+      this.#workerPool.length < this.#maxWorkerPoolSize) {
       // Add a new worker
-      const worker = new Worker(this.#workerPath, { type: 'module'});
+      const worker = new Worker(new URL('./draco-worker.js', import.meta.url), { type: 'classic' });
       worker.onmessage = this.#onMessage;
       this.#workerPool.push(worker);
       return worker;

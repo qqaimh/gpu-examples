@@ -5,7 +5,8 @@
  * @module WorkerLoader
  */
 
-const WORKER_DIR = import.meta.url.replace(/[^\/]*$/, '');
+// const WORKER_DIR = import.meta.url.replace(/[^\/]*$/, '');
+const WORKER_DIR = 'src/app/gpu-gltf/gpu-gltf-shadow/web-texture-tool/workers/';
 const MAX_WORKER_POOL_SIZE = 4;
 
 /**
@@ -74,10 +75,8 @@ export class WorkerLoader {
    * @param {string} relativeWorkerPath - Path to the worker script to load, relative to this file.
    */
   constructor(relativeWorkerPath) {
-    console.log(3333, WORKER_DIR, relativeWorkerPath)
-    const blob = new Blob([`importScripts(${WORKER_DIR}${relativeWorkerPath})`], {"type": 'application/javascript'});
     // Load the worker script.
-    this.workerPath = window.URL.createObjectURL(blob);
+    this.workerPath = relativeWorkerPath;
     this.workerPool = [];
     this.nextWorker = 0;
     this.outstandingRequests = 0;
@@ -86,11 +85,11 @@ export class WorkerLoader {
   }
 
   addWorker() {
-    const worker = new Worker(this.workerPath, { type: 'module'});
-    worker.onmessage = (msg) => {
-      onWorkerMessage(msg);
-      this.outstandingRequests--;
-    };
+    const worker = new Worker(new URL('./workers/ktx/ktx-worker.js', import.meta.url), { type: 'classic' });
+      worker.onmessage = (msg) => {
+        onWorkerMessage(msg);
+        this.outstandingRequests--;
+      };
 
     this.workerPool.push(worker);
     return worker;
