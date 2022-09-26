@@ -1,0 +1,17 @@
+:host {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+canvas {
+ flex: 1;
+}
+
+.pane-container {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 0px;
+  right: 0px;
+}

@@ -20,6 +20,7 @@
     "@angular/router": "^14.2.1",
     "dat.gui": "^0.7.9",
     "gl-matrix": "^3.4.3",
+    "ktx-parse": "^0.4.5",
     "matter-js": "^0.18.0",
     "monaco-editor": "^0.34.0",
     "rxjs": "~7.5.6",

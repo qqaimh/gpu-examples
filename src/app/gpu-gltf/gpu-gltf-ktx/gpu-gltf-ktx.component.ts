@@ -14,7 +14,7 @@ export class GpuGltfKtxComponent implements OnInit {
   }
 
   async fetchKtx() {
-    const response = await fetch('../../../assets/media/textures/skybox/cube-basis-mipmap.ktx2');
+    const response = await fetch('../../../assets/shadow/textures/skybox/cube-basis-mipmap.ktx2');
     console.log(11112222, response);
     if (!response.ok) {
       return console.log(`Fetch failed: ${response.status}, ${response.statusText}`);
