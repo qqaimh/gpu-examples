@@ -1,0 +1,20 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../out-tsc/worker",
+    "lib": [
+      "es2018",
+      "webworker"
+    ],
+    "types": [],
+    "allowJs": true
+  },
+  
+  "files": [
+    // "./src/app/gpu-gltf/gpu-gltf-shadow/web-texture-tool/workers/basis/basis-worker.js",
+    "./app/gpu-gltf/gpu-gltf-clustered-ball/js/third-party/web-texture-tool/build/workers/ktx/ktx-worker.js",
+    // "./src/app/gpu-gltf/gpu-gltf-shadow/web-texture-tool/workers/dds-worker.js",
+    // "./src/app/gpu-gltf/gpu-gltf-shadow/engine/loaders/lib/draco-worker.js",
+  ]
+}

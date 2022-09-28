@@ -41,7 +41,7 @@
               "path": "./webpack-wgsl.config.js",
               "replaceDuplicatePlugins": true
             },
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "webWorkerTsConfig": "src/tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -110,7 +110,7 @@
               "src/styles.scss"
             ],
             "scripts": [],
-            "webWorkerTsConfig": "tsconfig.worker.json"
+            "webWorkerTsConfig": "src/tsconfig.worker.json"
           }
         }
       }

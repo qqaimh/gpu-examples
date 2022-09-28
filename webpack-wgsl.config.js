@@ -1,4 +1,3 @@
-const WorkerPlugin = require('worker-plugin');
 
 module.exports = {
     module: {
@@ -6,9 +5,6 @@ module.exports = {
             { test: /\.wgsl$/i, loader: "ts-shader-loader" }
         ]
     },
-    // plugins: [
-    //     new WorkerPlugin()
-    // ]
     resolve: {
         fallback: {
             "path": false,

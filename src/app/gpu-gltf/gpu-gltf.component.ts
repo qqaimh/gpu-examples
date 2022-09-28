@@ -23,6 +23,10 @@ export class GpuGltfComponent implements OnInit {
     {
       name: 'metaballs',
       url: './metaballs',
+    },
+    {
+      name: 'clusteredball',
+      url: './clusteredball',
     }
   ];
 
