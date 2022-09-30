@@ -7,7 +7,7 @@
  * main thread. Majority of the work is handled by Web Assembly code in basis_transcoder.wasm.
  */
 
-importScripts('../worker-util.js');
+importScripts('worker-util.js');
 importScripts('basis_transcoder.js');
 
 // eslint-disable-next-line new-cap
