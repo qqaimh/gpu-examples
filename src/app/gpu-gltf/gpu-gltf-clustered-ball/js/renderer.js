@@ -77,8 +77,8 @@ function randomBetween(min, max) {
 }
 
 export class Renderer {
-  constructor() {
-    this.canvas = document.createElement('canvas');
+  constructor(canvas) {
+    this.canvas = canvas;
     this.camera = null;
     this.rafId = 0;
     this.frameCount = -1;

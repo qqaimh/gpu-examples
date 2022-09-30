@@ -16,6 +16,7 @@ import { WebGPURenderer } from './js/webgpu-renderer/webgpu-renderer.js';
 })
 export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
   @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
+  @ViewChild('paneContainer', { static: true }) paneContainer!: ElementRef;
 
   constructor() { }
 
@@ -31,7 +32,7 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
     let gltf = null;
 
     const stats = new Stats();
-    document.body.appendChild(stats.dom);
+    this.paneContainer.nativeElement.appendChild(stats.dom);
 
     const camera = new FlyingCamera();
     camera.position = [0, 1.5, 0];
@@ -40,7 +41,7 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
     const appSettings = {
       renderer: 'webGPU',
       output: 'clustered-forward',
-      mesh: './../../assets/sponza/sponza-ktx.glb',
+      mesh: '../../../assets/sponza/sponza.glb',
       renderLightSprites: true,
       lightPattern: 'wandering',
       lightCount: 128,
@@ -54,10 +55,7 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
 
     let gui = new dat.GUI();
 
-    gui.add(appSettings, 'renderer', {
-      webGL2: 'webGL2',
-      webGPU: 'webGPU'
-    }).onChange(onApiChange);
+    
 
     gui.add(appSettings, 'output', {
       naiveForward: 'naive-forward',
@@ -93,9 +91,9 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
       }
     });
 
-    document.body.appendChild(gui.domElement);
+    this.paneContainer.nativeElement.appendChild(gui.domElement);
 
-    async function onApiChange() {
+    const onApiChange = async () => {
       let prevCanvas;
       if (renderer) {
         prevCanvas = renderer.canvas;
@@ -105,10 +103,10 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
 
       switch (appSettings.renderer) {
         case 'webGL2':
-          renderer = new WebGL2Renderer();
+          renderer = new WebGL2Renderer(this.theCanvas.nativeElement as HTMLCanvasElement);
           break;
         case 'webGPU':
-          renderer = new WebGPURenderer();
+          renderer = new WebGPURenderer(this.theCanvas.nativeElement as HTMLCanvasElement);
           break;
         default:
           renderer = null;
@@ -126,10 +124,10 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
             await renderer.setGltf(gltf);
           }
           renderer.camera = camera;
-          if (prevCanvas) {
-            document.body.removeChild(prevCanvas);
-          }
-          document.body.appendChild(renderer.canvas);
+          // if (prevCanvas) {
+          //   document.body.removeChild(prevCanvas);
+          // }
+          // document.body.appendChild(renderer.canvas);
           camera.element = renderer.canvas;
           renderer.lightManager.lightCount = appSettings.lightCount;
           renderer.updateLightRange(appSettings.maxLightRange);
@@ -145,6 +143,12 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
         }
       }
     }
+    
+    gui.add(appSettings, 'renderer', {
+      webGL2: 'webGL2',
+      webGPU: 'webGPU'
+    }).onChange(onApiChange);
+
     onApiChange();
 
     function onOutputChange() {

@@ -43,8 +43,8 @@ const emissiveFactor = new Float32Array(materialUniforms.buffer, 8 * 4, 3);
 const emptyArray = new Uint32Array(1);
 
 export class WebGPURenderer extends Renderer {
-  constructor() {
-    super();
+  constructor(canvas) {
+    super(canvas);
 
     this.context = this.canvas.getContext('webgpu');
 

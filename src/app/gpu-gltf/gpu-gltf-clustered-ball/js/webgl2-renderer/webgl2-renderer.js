@@ -117,8 +117,8 @@ const LightSprite = {
 };
 
 export class WebGL2Renderer extends Renderer {
-  constructor() {
-    super();
+  constructor(canvas) {
+    super(canvas);
 
     const gl = this.gl = this.canvas.getContext('webgl2', {
       powerPreference: "high-performance"
