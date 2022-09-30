@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { vec3, mat4 } from './third-party/gl-matrix/dist/esm/index.js';
+import { vec3, mat4 } from 'gl-matrix';
 
 const lightFloatCount = 8;
 const lightByteSize = lightFloatCount * 4;

@@ -31,7 +31,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./src/app/gpu-gltf/gpu-gltf-clustered-ball/js/web-texture-tool/workers/utils",
+                "output": "/"
+              }
             ],
             "styles": [
               "src/styles.scss"

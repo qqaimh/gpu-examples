@@ -7,7 +7,7 @@
  * https://github.com/KhronosGroup/KTX-Software
  */
 
-importScripts('../worker-util.js');
+importScripts('worker-util.js');
 importScripts('libktx.js');
 
 // eslint-disable-next-line new-cap

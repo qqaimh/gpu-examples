@@ -13,7 +13,7 @@
   
   "files": [
     // "./src/app/gpu-gltf/gpu-gltf-shadow/web-texture-tool/workers/basis/basis-worker.js",
-    "./app/gpu-gltf/gpu-gltf-clustered-ball/js/third-party/web-texture-tool/build/workers/ktx/ktx-worker.js",
+    "./app/gpu-gltf/gpu-gltf-clustered-ball/js/web-texture-tool/workers/ktx/ktx-worker.js",
     // "./src/app/gpu-gltf/gpu-gltf-shadow/web-texture-tool/workers/dds-worker.js",
     // "./src/app/gpu-gltf/gpu-gltf-shadow/engine/loaders/lib/draco-worker.js",
   ]

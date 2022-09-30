@@ -41,7 +41,7 @@ export class GpuGltfClusteredBallComponent implements OnInit, AfterViewInit {
     const appSettings = {
       renderer: 'webGPU',
       output: 'clustered-forward',
-      mesh: '../../../assets/sponza/sponza.glb',
+      mesh: '../../../assets/sponza/sponza-ktx.glb',
       renderLightSprites: true,
       lightPattern: 'wandering',
       lightCount: 128,
