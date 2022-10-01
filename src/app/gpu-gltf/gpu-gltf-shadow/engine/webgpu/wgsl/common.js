@@ -48,12 +48,12 @@ export function SkinStructs(group = 1) { return `
 
 export const GetSkinMatrix = `
   fn getSkinMatrix(input : VertexInput) -> mat4x4<f32> {
-    let joint0 = joint.matrices[input.joints.x] * inverseBind.matrices[input.joints.x];
-    let joint1 = joint.matrices[input.joints.y] * inverseBind.matrices[input.joints.y];
-    let joint2 = joint.matrices[input.joints.z] * inverseBind.matrices[input.joints.z];
-    let joint3 = joint.matrices[input.joints.w] * inverseBind.matrices[input.joints.w];
+    const joint0 = joint.matrices[input.joints.x] * inverseBind.matrices[input.joints.x];
+    const joint1 = joint.matrices[input.joints.y] * inverseBind.matrices[input.joints.y];
+    const joint2 = joint.matrices[input.joints.z] * inverseBind.matrices[input.joints.z];
+    const joint3 = joint.matrices[input.joints.w] * inverseBind.matrices[input.joints.w];
 
-    let skinMatrix = joint0 * input.weights.x +
+    const skinMatrix = joint0 * input.weights.x +
                      joint1 * input.weights.y +
                      joint2 * input.weights.z +
                      joint3 * input.weights.w;
@@ -65,7 +65,7 @@ export const INSTANCE_SIZE_F32 = 20;
 export const INSTANCE_SIZE_BYTES = INSTANCE_SIZE_F32 * Float32Array.BYTES_PER_ELEMENT;
 
 export function DefaultVertexInput(layout) {
-  let inputs = layout.locationsUsed.map((location) => {
+  const inputs = layout.locationsUsed.map((location) => {
       switch(location) {
       case AttributeLocation.position: return `@location(${AttributeLocation.position}) position : vec4<f32>,`;
       case AttributeLocation.normal: return `@location(${AttributeLocation.normal}) normal : vec3<f32>,`;
@@ -125,7 +125,7 @@ const GAMMA = 2.2;
 export const ColorConversions = wgsl`
   fn linearTosRGB(linear : vec3<f32>) -> vec3<f32> {
     #if ${USE_APPROXIMATE_SRGB}
-      let INV_GAMMA = 1.0 / ${GAMMA};
+      const INV_GAMMA = 1.0 / ${GAMMA};
       return pow(linear, vec3(INV_GAMMA));
     #else
       if (all(linear <= vec3(0.0031308))) {
@@ -171,7 +171,7 @@ struct FragmentInput {
 
 @fragment
 fn fragmentMain(input : FragmentInput) -> @location(0) vec4<f32> {
-  let color = textureSample(debugTexture, debugSampler, input.texCoord);
+  const color = textureSample(debugTexture, debugSampler, input.texCoord);
   return color;
 }
 `;
@@ -186,7 +186,7 @@ struct FragmentInput {
 
 @fragment
 fn fragmentMain(input : FragmentInput) -> @location(0) vec4<f32> {
-  let shadowDepth = textureSample(shadowTexture, shadowSampler, input.texCoord);
+  const shadowDepth = textureSample(shadowTexture, shadowSampler, input.texCoord);
   return vec4(shadowDepth, shadowDepth, shadowDepth, 1.0);
 }
 `;

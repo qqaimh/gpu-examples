@@ -40,6 +40,7 @@ import Stats from 'stats.js';
 })
 export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
   @ViewChild('theCanvas', { static: true }) theCanvas!: ElementRef;
+  @ViewChild('paneContainer', { static: true }) paneContainer!: ElementRef;
 
   constructor(private ele: ElementRef) {
 
@@ -70,10 +71,10 @@ export class GpuGltfShadowComponent implements OnInit, AfterViewInit {
     
     let gui = new dat.GUI();
     
-    document.body.appendChild(gui.domElement);
+    this.paneContainer.nativeElement.appendChild(gui.domElement);
     
     const stats = new Stats();
-    document.body.appendChild(stats.dom);
+    this.paneContainer.nativeElement.appendChild(stats.dom);
     
     const canvas = document.querySelector('canvas');
     
