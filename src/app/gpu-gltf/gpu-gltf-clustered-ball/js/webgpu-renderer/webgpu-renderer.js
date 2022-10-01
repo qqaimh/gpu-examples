@@ -27,7 +27,7 @@ import { PBRRenderBundleHelper, PBRClusteredRenderBundleHelper } from './pbr-ren
 import { DepthVisualization, DepthSliceVisualization, ClusterDistanceVisualization, LightsPerClusterVisualization } from './debug-visualizations.js';
 import { LightSpriteVertexSource, LightSpriteFragmentSource } from './shaders/light-sprite.js';
 import { vec2, vec3, vec4 } from 'gl-matrix';
-import { WebGPUTextureLoader } from '../web-texture-tool/webgpu-texture-loader.js';
+import { WebGPUTextureLoader } from '../../../../web-texture-tool/webgpu-texture-loader.js';
 
 import { ClusterBoundsSource, ClusterLightsSource, DISPATCH_SIZE, TOTAL_TILES, CLUSTER_LIGHTS_SIZE } from './shaders/clustered-compute.js';
 

@@ -22,7 +22,7 @@ import { Renderer } from '../renderer.js';
 import { ShaderProgram } from './shader-program.js';
 import { WEBGL2_VERTEX_SOURCE, WEBGL2_FRAGMENT_SOURCE, ATTRIB_MAP, SAMPLER_MAP, UNIFORM_BLOCKS, GetDefinesForPrimitive } from './pbr-shader.js';
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix';
-import { WebGLTextureLoader } from '../web-texture-tool/webgl-texture-loader.js';
+import { WebGLTextureLoader } from '../../../../web-texture-tool/webgl-texture-loader.js';
 
 export class PBRShaderProgram extends ShaderProgram {
   constructor(gl, defines) {

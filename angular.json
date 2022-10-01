@@ -34,7 +34,7 @@
               "src/assets",
               {
                 "glob": "**/*",
-                "input": "./src/app/gpu-gltf/gpu-gltf-clustered-ball/js/web-texture-tool/workers/utils",
+                "input": "./src/app/web-texture-tool/workers/utils",
                 "output": "/"
               }
             ],

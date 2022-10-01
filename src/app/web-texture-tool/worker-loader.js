@@ -74,11 +74,8 @@ export class WorkerLoader {
    * @param {string} relativeWorkerPath - Path to the worker script to load, relative to this file.
    */
   constructor(relativeWorkerPath) {
-    console.log(1111, import.meta.url)
-    console.log(2222,WORKER_DIR )
-    console.log(3333, relativeWorkerPath)
     // Load the worker script.
-    this.workerPath = `${WORKER_DIR}${relativeWorkerPath}`;
+    this.relativeWorkerPath = relativeWorkerPath;
     this.workerPool = [];
     this.nextWorker = 0;
     this.outstandingRequests = 0;
@@ -87,7 +84,21 @@ export class WorkerLoader {
   }
 
   addWorker() {
-    const worker = new Worker(new URL('./workers/ktx/ktx-worker.js', import.meta.url), { type: 'module'})
+    let worker;
+    switch (this.relativeWorkerPath) {
+      case 'basis_worker':
+        worker = new Worker(new URL('./workers/basis/basis-worker.js', import.meta.url), { type: 'module' })
+        break;
+
+      case 'ktx_worker':
+        worker = new Worker(new URL('./workers/ktx/ktx-worker.js', import.meta.url), { type: 'module' })
+        break;
+
+      case 'dds_worker':
+        worker = new Worker(new URL('./workers/dds-worker.js', import.meta.url), { type: 'module' })
+        break;
+    }
+
     worker.onmessage = (msg) => {
       onWorkerMessage(msg);
       this.outstandingRequests--;

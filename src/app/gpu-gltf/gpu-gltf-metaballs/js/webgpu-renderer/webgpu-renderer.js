@@ -23,7 +23,7 @@ import './wgsl-debug-helper.js';
 
 import { Renderer } from '../renderer';
 import { ProjectionUniformsSize, ViewUniformsSize, BIND_GROUP, ATTRIB_MAP } from './shaders/common.js';
-import { WebGPUTextureLoader } from 'web-texture-tool/src/webgpu-texture-loader';
+import { WebGPUTextureLoader } from '../../../../web-texture-tool/webgpu-texture-loader';
 import { ClusteredLightManager } from './clustered-lights.js';
 import { WebGPULightSprites } from './webgpu-light-sprites.js';
 import { WebGPUglTF } from './webgpu-gltf.js';

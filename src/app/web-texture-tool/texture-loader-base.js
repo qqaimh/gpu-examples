@@ -175,9 +175,9 @@ const EXTENSION_MIME_TYPES = {
 
 const EXTENSION_HANDLERS = [
   new ExtensionHandler(ImageLoader.supportedMIMETypes(), () => new ImageLoader()),
-  new ExtensionHandler(['image/basis'], () => new WorkerLoader('workers/basis/basis-worker.js')),
-  new ExtensionHandler(['image/ktx', 'image/ktx2'], () => new WorkerLoader('workers/ktx/ktx-worker.js')),
-  new ExtensionHandler(['image/vnd.ms-dds'], () => new WorkerLoader('workers/dds-worker.js')),
+  new ExtensionHandler(['image/basis'], () => new WorkerLoader('basis_worker')),
+  new ExtensionHandler(['image/ktx', 'image/ktx2'], () => new WorkerLoader('ktx_worker')),
+  new ExtensionHandler(['image/vnd.ms-dds'], () => new WorkerLoader('dds_worker')),
 ];
 
 const CLIENT = Symbol('wtt/WebTextureClient');
