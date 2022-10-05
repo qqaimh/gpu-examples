@@ -4,28 +4,17 @@ import { Transform } from './engine/core/transform.js';
 import { Camera } from './engine/core/camera.js';
 import { PointLight, AmbientLight, DirectionalLight, ShadowCastingLight } from './engine/core/light.js';
 import { Skybox } from './engine/core/skybox.js';
-import { Mesh } from './engine/core/mesh.js';
-import { BoundingVolume } from './engine/core/bounding-volume.js';
 
 import { GltfLoader } from './engine/loaders/gltf.js';
 
 import { FlyingControls, FlyingControlsSystem } from './engine/controls/flying-controls.js';
 
-import { BoneVisualizerSystem } from './engine/debug/bone-visualizer.js';
-import { BoundsVisualizerSystem } from './engine/debug/bounds-visualizer.js';
-
 import { WebGPUWorld } from './engine/webgpu/webgpu-world.js';
-
-import { BoxGeometry } from './engine/geometry/box.js';
-import { PBRMaterial, UnlitMaterial } from './engine/core/materials.js';
-import { WebGPULightSpriteSystem } from './engine/webgpu/webgpu-light-sprite.js';
 
 import { WebGPUTextureDebugSystem, WebGPUDebugTextureView } from './engine/webgpu/webgpu-texture-debug.js';
 import { WebGPUBloomSystem } from './engine/webgpu/webgpu-bloom.js';
 
 import { WebGPUShadowSettings } from './engine/webgpu/webgpu-shadow.js';
-
-// import { BVH } from './engine/util/bvh.js';
 
 import { vec3, quat } from 'gl-matrix';
 

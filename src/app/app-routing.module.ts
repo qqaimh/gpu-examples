@@ -11,6 +11,10 @@ const routes: Routes = [
     loadChildren:() => import('./gpu-gltf/gpu-gltf.module').then(m => m.GpuGltfModule)
   },
   {
+    path: 'games',
+    loadChildren:() => import('./gpu-games/gpu-games.module').then(m => m.GpuGamesModule)
+  },
+  {
     path: 'thinker',
     loadChildren:() => import('./gpu-thinker/gpu-thinker.module').then(m => m.GpuThinkerModule)
   },
