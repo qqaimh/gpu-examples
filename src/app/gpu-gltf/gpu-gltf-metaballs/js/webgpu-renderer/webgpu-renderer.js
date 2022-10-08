@@ -77,8 +77,16 @@ export class WebGPURenderer extends Renderer {
 
     // Enable compressed textures if available
     const requiredFeatures = [];
-    if (this.adapter.features.has('texture-compression-bc') != -1) {
+    if (this.adapter.features.has('texture-compression-bc')) {
       requiredFeatures.push('texture-compression-bc');
+    }
+
+    if (this.adapter.features.has('texture-compression-etc2')) {
+      requiredFeatures.push('texture-compression-etc2');
+    }
+
+    if (this.adapter.features.has('texture-compression-astc')) {
+      requiredFeatures.push('texture-compression-astc');
     }
 
     // Enable timestamp queries if available
@@ -86,10 +94,7 @@ export class WebGPURenderer extends Renderer {
       requiredFeatures.push('timestamp-query');
     }*/
 
-    // This is just for testing. Ignore.
-    const requiredLimits = { maxBindGroups: 4 };
-
-    this.device = await this.adapter.requestDevice({requiredFeatures, requiredLimits});
+    this.device = await this.adapter.requestDevice({requiredFeatures});
 
     if (navigator.gpu.getPreferredCanvasFormat) {
       this.contextFormat = navigator.gpu.getPreferredCanvasFormat();
