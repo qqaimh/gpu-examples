@@ -45,7 +45,7 @@ export function ClusterLightsStruct(group=0, binding=2, access='read') { return 
 }
 
 export const TileFunctions = `
-let tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
+const tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
 
 fn linearDepth(depthSample : f32) -> f32 {
   return camera.zFar * camera.zNear / fma(depthSample, camera.zNear-camera.zFar, camera.zFar);
@@ -92,8 +92,8 @@ export const ClusterBoundsSource = `
     return clipToView(clip);
   }
 
-  let tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
-  let eyePos = vec3(0.0);
+  const tileCount = vec3(${TILE_COUNT[0]}u, ${TILE_COUNT[1]}u, ${TILE_COUNT[2]}u);
+  const eyePos = vec3(0.0);
 
   @compute @workgroup_size(${WORKGROUP_SIZE[0]}, ${WORKGROUP_SIZE[1]}, ${WORKGROUP_SIZE[2]})
   fn computeMain(@builtin(global_invocation_id) global_id : vec3<u32>) {
@@ -131,14 +131,14 @@ export const ClusterLightsSource = `
 
   ${TileFunctions}
 
-  fn sqDistPointAABB(point : vec3<f32>, minAABB : vec3<f32>, maxAABB : vec3<f32>) -> f32 {
+  fn sqDistPointAABB(thePoint : vec3<f32>, minAABB : vec3<f32>, maxAABB : vec3<f32>) -> f32 {
     var sqDist = 0.0;
     // const minAABB = clusters.bounds[tileIndex].minAABB;
     // const maxAABB = clusters.bounds[tileIndex].maxAABB;
 
     // Wait, does this actually work? Just porting code, but it seems suspect?
     for(var i : i32 = 0; i < 3; i = i + 1) {
-      let v = point[i];
+      let v = thePoint[i];
       if(v < minAABB[i]){
         sqDist = sqDist + (minAABB[i] - v) * (minAABB[i] - v);
       }

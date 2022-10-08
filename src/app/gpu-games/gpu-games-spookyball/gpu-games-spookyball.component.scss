@@ -3,7 +3,166 @@
     display: flex;
 }
 
+.container {
+    position: relative;
+    margin: auto;
+    overflow: hidden;
+}
+
+.container.error {
+    overflow: visible;
+}
+
+.container.error>canvas,
+.container.error>#level-title,
+.container.error>#lives-display {
+    display: none;
+}
+
+.container.error>#score-display {
+    top: 50%;
+    white-space: normal;
+}
+
 canvas {
-   flex: 1;
-   border: 1px solid red;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-aspect-ratio: 3/4) {
+    .container {
+        width: 100%;
+        aspect-ratio: 3/4
+    }
+
+    #left-banner,
+    #right-banner {
+        display: none;
+    }
+}
+
+@media (min-aspect-ratio: 3/4) and (max-aspect-ratio: 7/8) {
+    .container {
+        height: 100%;
+        width: 100%;
+    }
+
+    #left-banner,
+    #right-banner {
+        display: none;
+    }
+}
+
+@media (min-aspect-ratio: 7/8) {
+    .container {
+        height: 100%;
+        aspect-ratio: 7/8
+    }
+}
+
+#left-banner {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    height: 100%;
+    background-image: url('../../../assets/spookyball/images/left-banner.png');
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: right top;
+    margin-right: -39px;
+}
+
+#right-banner {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    height: 100%;
+    background-image: url('../../../assets/spookyball/images/right-banner.png');
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: left top;
+    margin-left: -78px;
+}
+
+.dg.main {
+    position: absolute;
+    z-index: 100;
+    top: 1em;
+    right: 1em;
+}
+
+#score-display {
+    position: absolute;
+    z-index: 10;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 2em;
+    font-family: 'Creepster', cursive;
+    color: #FFFFFF;
+    white-space: nowrap;
+}
+
+#level-title {
+    position: absolute;
+    z-index: 10;
+    bottom: 33%;
+    left: 50%;
+    margin: 0 auto;
+    font-family: 'Creepster', cursive;
+    font-size: 5em;
+    color: white;
+    white-space: nowrap;
+
+    opacity: 0;
+    transform: translate(-50%, 0) scale(1.5);
+    transition-property: opacity, transform;
+    transition-duration: 1s;
+    transition-timing-function: ease-out;
+}
+
+#level-title.show {
+    opacity: 1.0;
+    transform: translate(-50%, 0) scale(1.0);
+}
+
+#replay-button {
+    position: absolute;
+    z-index: 10;
+    bottom: 25%;
+    left: 50%;
+    margin: 0 auto;
+
+    font-family: 'Creepster', cursive;
+    font-size: 2.5em;
+    color: white;
+    white-space: nowrap;
+
+    border: 1px solid white;
+    border-radius: 5px;
+    background: transparent;
+    padding: 0.25em;
+
+    display: none;
+    transform: translate(-50%, 0) scale(1.0);
+}
+
+#replay-button:hover {
+    transform: translate(-50%, 0) scale(1.1);
+}
+
+#replay-button.show {
+    display: block;
+}
+
+#lives-display {
+    position: absolute;
+    z-index: 10;
+    bottom: 2em;
+    left: 2em;
+    width: 100%;
+    font-size: 2em;
+    font-family: 'Creepster', cursive;
+    color: #FFFFFF;
 }

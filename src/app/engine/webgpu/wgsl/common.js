@@ -48,12 +48,12 @@ export function SkinStructs(group = 1) { return `
 
 export const GetSkinMatrix = `
   fn getSkinMatrix(input : VertexInput) -> mat4x4<f32> {
-    const joint0 = joint.matrices[input.joints.x] * inverseBind.matrices[input.joints.x];
-    const joint1 = joint.matrices[input.joints.y] * inverseBind.matrices[input.joints.y];
-    const joint2 = joint.matrices[input.joints.z] * inverseBind.matrices[input.joints.z];
-    const joint3 = joint.matrices[input.joints.w] * inverseBind.matrices[input.joints.w];
+    var joint0 = joint.matrices[input.joints.x] * inverseBind.matrices[input.joints.x];
+    var joint1 = joint.matrices[input.joints.y] * inverseBind.matrices[input.joints.y];
+    var joint2 = joint.matrices[input.joints.z] * inverseBind.matrices[input.joints.z];
+    var joint3 = joint.matrices[input.joints.w] * inverseBind.matrices[input.joints.w];
 
-    const skinMatrix = joint0 * input.weights.x +
+    var skinMatrix = joint0 * input.weights.x +
                      joint1 * input.weights.y +
                      joint2 * input.weights.z +
                      joint3 * input.weights.w;

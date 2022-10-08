@@ -12,7 +12,7 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
   @group(${group}) @binding(6) var<storage, read> lightShadowTable : LightShadowTable;
 
 #if ${flags.shadowSamples == 16}
-  let sampleWidth = 3.0;
+  const sampleWidth = 3.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 16> = array<vec2<f32>, 16>(
     vec2(-1.5, -1.5), vec2(-1.5, -0.5), vec2(-1.5, 0.5), vec2(-1.5, 1.5),
     vec2(-0.5, -1.5), vec2(-0.5, -0.5), vec2(-0.5, 0.5), vec2(-0.5, 1.5),
@@ -20,17 +20,17 @@ export function ShadowFunctions(group = 0, flags) { return wgsl`
     vec2(1.5, -1.5), vec2(1.5, -0.5), vec2(1.5, 0.5), vec2(1.5, 1.5)
   );
 #elif ${flags.shadowSamples == 4}
-  let sampleWidth = 2.0;
+  const sampleWidth = 2.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 4> = array<vec2<f32>, 4>(
     vec2(-0.5, -0.5), vec2(-0.5, 0.5), vec2(0.5, -0.5), vec2(0.5, 0.5),
   );
 #elif ${flags.shadowSamples == 2}
-let sampleWidth = 1.0;
+const sampleWidth = 1.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 2> = array<vec2<f32>, 2>(
     vec2(-0.5, -0.5), vec2(0.5, 0.5)
   );
 #elif ${flags.shadowSamples == 1}
-  let sampleWidth = 0.0;
+  const sampleWidth = 0.0;
   var<private> shadowSampleOffsets : array<vec2<f32>, 1> = array<vec2<f32>, 1>(
     vec2(0.0, 0.0)
   );
@@ -38,7 +38,7 @@ let sampleWidth = 1.0;
   ERROR: Bad flag. shadowSampleCount must be 16, 4, 2, or 1
 #endif
 
-  let shadowSampleCount = ${flags.shadowSamples}u;
+  const shadowSampleCount = ${flags.shadowSamples}u;
 
   struct ShadowProperties {
     viewport: vec4<f32>,
