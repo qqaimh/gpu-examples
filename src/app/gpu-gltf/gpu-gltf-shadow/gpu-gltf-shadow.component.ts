@@ -1,20 +1,20 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
-import { Transform } from './engine/core/transform.js';
-import { Camera } from './engine/core/camera.js';
-import { PointLight, AmbientLight, DirectionalLight, ShadowCastingLight } from './engine/core/light.js';
-import { Skybox } from './engine/core/skybox.js';
+import { Transform } from '../../engine/core/transform.js';
+import { Camera } from '../../engine/core/camera.js';
+import { PointLight, AmbientLight, DirectionalLight, ShadowCastingLight } from '../../engine/core/light.js';
+import { Skybox } from '../../engine/core/skybox.js';
 
-import { GltfLoader } from './engine/loaders/gltf.js';
+import { GltfLoader } from '../../engine/loaders/gltf.js';
 
-import { FlyingControls, FlyingControlsSystem } from './engine/controls/flying-controls.js';
+import { FlyingControls, FlyingControlsSystem } from '../../engine/controls/flying-controls.js';
 
-import { WebGPUWorld } from './engine/webgpu/webgpu-world.js';
+import { WebGPUWorld } from '../../engine/webgpu/webgpu-world.js';
 
-import { WebGPUTextureDebugSystem, WebGPUDebugTextureView } from './engine/webgpu/webgpu-texture-debug.js';
-import { WebGPUBloomSystem } from './engine/webgpu/webgpu-bloom.js';
+import { WebGPUTextureDebugSystem, WebGPUDebugTextureView } from '../../engine/webgpu/webgpu-texture-debug.js';
+import { WebGPUBloomSystem } from '../../engine/webgpu/webgpu-bloom.js';
 
-import { WebGPUShadowSettings } from './engine/webgpu/webgpu-shadow.js';
+import { WebGPUShadowSettings } from '../../engine/webgpu/webgpu-shadow.js';
 
 import { vec3, quat } from 'gl-matrix';
 

@@ -15,6 +15,6 @@
     "./app/web-texture-tool/workers/basis/basis-worker.js",
     "./app/web-texture-tool/workers/ktx/ktx-worker.js",
     "./app/web-texture-tool/workers/dds-worker.js",
-    "./app/gpu-gltf/gpu-gltf-shadow/engine/loaders/lib/draco-worker.js",
+    "./app/engine/loaders/lib/draco-worker.js",
   ]
 }
