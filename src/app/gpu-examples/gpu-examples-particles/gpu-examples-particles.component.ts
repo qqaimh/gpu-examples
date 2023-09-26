@@ -27,6 +27,8 @@ export class GpuExamplesParticlesComponent implements OnInit {
 
   gui: dat.GUI  = new dat.GUI({ autoPlace: false });
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor(private ele: ElementRef) { }
 
   ngOnInit(): void {
@@ -42,17 +44,15 @@ export class GpuExamplesParticlesComponent implements OnInit {
     if (!this.theCanvas.nativeElement) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
+      //size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -138,7 +138,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
     });
 
     const depthTexture: GPUTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -367,7 +367,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
     });
 
     Object.keys(simulationParams).forEach((k) => {
-      this.gui.add(simulationParams, k);
+      this.gui.add(simulationParams, k as any);
     });
 
     const computePipeline: GPUComputePipeline = await device.createComputePipelineAsync({
@@ -403,7 +403,7 @@ export class GpuExamplesParticlesComponent implements OnInit {
       ],
     });
 
-    const aspect = presentationSize[0] / presentationSize[1];
+    const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
     const projection = mat4.create();
     const view = mat4.create();
     const mvp = mat4.create();

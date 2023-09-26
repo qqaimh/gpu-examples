@@ -10,6 +10,8 @@ import sampleExternalTextureWGSL from './shaders/sampleExternalTexture.wgsl';
 })
 export class GpuExamplesVideoUploadingComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
+
+  devicePixelRatio = window.devicePixelRatio || 1;
   
   constructor() { }
 
@@ -24,7 +26,22 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
     video.autoplay = true;
     video.muted = true;
     video.src = '../../assets/video/pano.webm';
-    await video.play();
+    // video.load();
+    // await video.play();
+    const playPromise = video.play();
+
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        // Automatic playback started!
+        // Show playing UI.
+        // We can now safely pause video...
+      })
+      .catch((error) => {
+        // Auto-play was prevented
+        // Show paused UI.
+      });
+  }
 
     const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
     const device: GPUDevice = await adapter.requestDevice();
@@ -33,17 +50,14 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
 
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+  
     const presentationFormat: GPUTextureFormat =  navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 

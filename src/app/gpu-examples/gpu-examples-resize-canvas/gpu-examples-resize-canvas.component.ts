@@ -11,6 +11,8 @@ import redFragWGSL from './shaders/red.frag.wgsl';
 export class GpuExamplesResizeCanvasComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -26,16 +28,12 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
 
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -77,31 +75,27 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
+      const currentWidth = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+      const currentHeight = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
       // The canvas size is animating via CSS.
       // When the size changes, we need to reallocate the render target.
       // We also need to set the physical size of the canvas to match the computed CSS size.
       if (
-        this.theCanvas.nativeElement.clientWidth !== presentationSize[0] ||
-        this.theCanvas.nativeElement.clientHeight !== presentationSize[1]
+        (this.theCanvas.nativeElement.width !== currentWidth || this.theCanvas.nativeElement.height !== currentHeight)
+        && currentWidth && currentHeight
       ) {
         if (renderTarget !== undefined) {
           // Destroy the previous render target
           renderTarget.destroy();
         }
 
-        presentationSize[0] = this.theCanvas.nativeElement.clientWidth;
-        presentationSize[1] = this.theCanvas.nativeElement.clientHeight;
+        this.theCanvas.nativeElement.width = currentWidth;
+        this.theCanvas.nativeElement.height = currentHeight;
 
-        // Reconfigure the canvas size.
-        context.configure({
-          device,
-          format: presentationFormat,
-          size: presentationSize,
-          alphaMode: 'premultiplied'
-        });
 
         renderTarget = device.createTexture({
-          size: presentationSize,
+          size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
           sampleCount,
           format: presentationFormat,
           usage: GPUTextureUsage.RENDER_ATTACHMENT,
@@ -126,7 +120,7 @@ export class GpuExamplesResizeCanvasComponent implements OnInit {
 
       const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
-      passEncoder.draw(3, 1, 0, 0);
+      passEncoder.draw(3);
       passEncoder.end();
 
       device.queue.submit([commandEncoder.finish()]);

@@ -20,6 +20,8 @@ import sampleTextureMixColorWGSL from './shaders/sampleTextureMixColor.frag.wgsl
 export class GpuExamplesTextureCubeComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -33,17 +35,14 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     if (this.theCanvas.nativeElement === null) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -113,7 +112,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
     });
 
     const depthTexture: GPUTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -192,7 +191,7 @@ export class GpuExamplesTextureCubeComponent implements OnInit {
       },
     };
  
-    const aspect = presentationSize[0] / presentationSize[1];
+    const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 100.0);
 

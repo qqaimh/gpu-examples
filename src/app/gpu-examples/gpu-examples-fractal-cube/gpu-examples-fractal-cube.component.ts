@@ -20,6 +20,8 @@ import sampleSelfWGSL from './shaders/sampleSelf.frag.wgsl';
 export class GpuExamplesFractalCubeComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -33,11 +35,9 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
     if (!this.theCanvas.nativeElement) return;
     const context = this.theCanvas.nativeElement.getContext('webgpu');
   
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   
     context.configure({
@@ -47,7 +47,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       // Specify we want both RENDER_ATTACHMENT and COPY_SRC since we
       // will copy out of the swapchain texture.
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
-      size: presentationSize,
+      //size: presentationSize,
       alphaMode: 'premultiplied'
     });
   
@@ -117,7 +117,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
     });
   
     const depthTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -131,7 +131,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
     // We will copy the frame's rendering results into this texture and
     // sample it on the next frame.
     const cubeTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: presentationFormat,
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
     });
@@ -181,7 +181,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       },
     };
   
-    const aspect = presentationSize[0] / presentationSize[1];
+    const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 100.0);
   
@@ -234,7 +234,7 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
         {
           texture: cubeTexture,
         },
-        presentationSize
+        [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       );
   
       device.queue.submit([commandEncoder.finish()]);

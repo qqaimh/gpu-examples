@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec3 } from 'wgpu-matrix';
 
 import {
   cubeVertexArray,
@@ -20,6 +20,8 @@ import vertexPositionColorWGSL from './shaders/vertexPositionColor.frag.wgsl';
 export class GpuExamplesRotatingCubeComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -33,17 +35,14 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     if (this.theCanvas.nativeElement === null) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'opaque'
     });
 
@@ -57,6 +56,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     verticesBuffer.unmap();
 
     const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
+      layout: 'auto',
       vertex: {
         module: device.createShaderModule({
           code: basicVertWGSL,
@@ -109,12 +109,11 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
         depthCompare: 'less',
         format: 'depth24plus',
       },
-      layout: 'auto'
     });
 
     // 深度纹理
     const depthTexture: GPUTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -140,7 +139,7 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: ([
         {
-          view: context.getCurrentTexture().createView(), // Assigned later
+          view: undefined, // Assigned later
           clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
           loadOp: 'clear',
           storeOp: 'store',
@@ -148,7 +147,6 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
       ] as Iterable<GPURenderPassColorAttachment | null>),
       depthStencilAttachment: {
         view: depthTexture.createView(),
-
         depthClearValue: 1.0,
         depthLoadOp: 'clear',
         depthStoreOp: 'store',
@@ -156,22 +154,27 @@ export class GpuExamplesRotatingCubeComponent implements OnInit {
     };
 
     const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 100.0);
+
+    const projectionMatrix = mat4.perspective(
+      (2 * Math.PI) / 5,
+      aspect,
+      1,
+      100.0
+    );
+    const modelViewProjectionMatrix = mat4.create();
 
     function getTransformationMatrix() {
-      const viewMatrix = mat4.create();
-      mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -4));
+      const viewMatrix = mat4.identity();
+      mat4.translate(viewMatrix, vec3.fromValues(0, 0, -4), viewMatrix);
       const now = Date.now() / 1000;
       mat4.rotate(
         viewMatrix,
-        viewMatrix,
+        vec3.fromValues(Math.sin(now), Math.cos(now), 0),
         1,
-        vec3.fromValues(Math.sin(now), Math.cos(now), 0)
+        viewMatrix
       );
 
-      const modelViewProjectionMatrix = mat4.create();
-      mat4.multiply(modelViewProjectionMatrix, projectionMatrix, viewMatrix);
+      mat4.multiply(projectionMatrix, viewMatrix, modelViewProjectionMatrix);
 
       return modelViewProjectionMatrix as Float32Array;
     }

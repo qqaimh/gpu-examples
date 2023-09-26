@@ -14,6 +14,8 @@ export class GpuExamplesAnimometerComponent implements OnInit {
 
   gui: dat.GUI  = new dat.GUI({ autoPlace: false });
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -45,18 +47,15 @@ export class GpuExamplesAnimometerComponent implements OnInit {
 
     const context = this.theCanvas.nativeElement.getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 

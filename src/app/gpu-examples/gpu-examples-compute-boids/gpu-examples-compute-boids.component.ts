@@ -14,6 +14,8 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
 
   gui: dat.GUI = new dat.GUI({ autoPlace: false });
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor(private ele: ElementRef) { }
 
   ngOnInit(): void {
@@ -28,16 +30,13 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
     if (!this.theCanvas.nativeElement) return;
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -163,7 +162,7 @@ export class GpuExamplesComputeBoidsComponent implements OnInit {
     }
     updateSimParams();
     Object.keys(simParams).forEach((k) => {
-      this.gui.add(simParams, k).onFinishChange(updateSimParams);
+      this.gui.add(simParams, k as any).onFinishChange(updateSimParams);
     });
 
     // 构建鸟群初始数据，前两位是鸟的位置，后两位是鸟的速度矢量

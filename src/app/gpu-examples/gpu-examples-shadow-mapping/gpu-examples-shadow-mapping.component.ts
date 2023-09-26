@@ -18,6 +18,8 @@ const shadowDepthTextureSize = 1024;
 export class GpuExamplesShadowMappingComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -33,17 +35,14 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
 
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
-    const aspect = presentationSize[0] / presentationSize[1];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
+
+    const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -209,7 +208,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
     });
 
     const depthTexture: GPUTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: 'depth24plus-stencil8',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -246,7 +245,7 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
       // Two 4x4 viewProj matrices,
       // one for the camera and one for the light.
       // Then a vec3 for the light position.
-      size: 2 * 4 * 16 + 3 * 4,
+      size: 2 * 4 * 16 + 4 * 4,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
