@@ -41,6 +41,10 @@ export class GpuExamplesComponent implements OnInit {
       url: './fractal-cube',
     },
     {
+      name: 'cameras',
+      url: './cameras',
+    },
+    {
       name: 'cubeMap',
       url: './cube-map',
     },
@@ -55,6 +59,10 @@ export class GpuExamplesComponent implements OnInit {
     {
       name: 'videoUploading',
       url: './video-uploading',
+    },
+    {
+      name: 'videoUploadingWebCodecs',
+      url: './videoUploadingWebCodecs',
     },
     {
       name: 'imageBlur',

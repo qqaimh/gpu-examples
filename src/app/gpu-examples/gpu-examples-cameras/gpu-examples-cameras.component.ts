@@ -1,54 +1,69 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { mat4, vec3 } from 'gl-matrix';
+import { mat4, vec3 } from 'wgpu-matrix';
+import cubeWGSL from './cube.wgsl';
+import { ArcballCamera, WASDCamera } from './camera';
+import { createInputHandler } from './input';
 
-import {
-  cubeVertexArray,
-  cubeVertexSize,
-  cubeUVOffset,
-  cubePositionOffset,
-  cubeVertexCount,
-} from './meshes/cube';
-
-import basicVertWGSL from './shaders/basic.vert.wgsl';
-import sampleSelfWGSL from './shaders/sampleSelf.frag.wgsl';
+import * as dat from 'dat.gui';
+import { cubePositionOffset, cubeUVOffset, cubeVertexArray, cubeVertexCount, cubeVertexSize } from '../gpu-examples-texture-cube/meshes/cube';
 
 @Component({
-  selector: 'app-gpu-examples-fractal-cube',
-  templateUrl: './gpu-examples-fractal-cube.component.html',
-  styleUrls: ['./gpu-examples-fractal-cube.component.scss']
+  selector: 'gpu-examples-gpu-examples-cameras',
+  templateUrl: './gpu-examples-cameras.component.html',
+  styleUrls: ['./gpu-examples-cameras.component.scss']
 })
-export class GpuExamplesFractalCubeComponent implements OnInit {
+export class GpuExamplesCamerasComponent  implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
   devicePixelRatio = window.devicePixelRatio || 1;
 
+  gui: dat.GUI  = new dat.GUI({ autoPlace: false });
+  
   constructor() { }
 
   ngOnInit(): void {
     this.draw();
   }
 
-  async draw()  {
+  async draw() {
+    if (this.theCanvas.nativeElement === null) return;
+  
+    // The input handler
+    const inputHandler = createInputHandler(window);
+  
+    // The camera types
+    const initialCameraPosition = vec3.create(3, 2, 5);
+    const cameras = {
+      arcball: new ArcballCamera({ position: initialCameraPosition }),
+      WASD: new WASDCamera({ position: initialCameraPosition }),
+    };
+  
+    // GUI parameters
+    const params: { type: 'arcball' | 'WASD' } = {
+      type: 'arcball',
+    };
+  
+    // Callback handler for camera mode
+    let oldCameraType = params.type;
+    this.gui.add(params, 'type', ['arcball', 'WASD']).onChange(() => {
+      // Copy the camera matrix from old to new
+      const newCameraType = params.type;
+      cameras[newCameraType].matrix = cameras[oldCameraType].matrix;
+      oldCameraType = newCameraType;
+    });
+  
     const adapter = await navigator.gpu.requestAdapter();
     const device = await adapter.requestDevice();
-  
-    if (!this.theCanvas.nativeElement) return;
-    const context = this.theCanvas.nativeElement.getContext('webgpu');
+    const context = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu') as GPUCanvasContext;
   
     this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
     this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
-
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
   
     context.configure({
       device,
       format: presentationFormat,
-  
-      // Specify we want both RENDER_ATTACHMENT and COPY_SRC since we
-      // will copy out of the swapchain texture.
-      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
-      //size: presentationSize,
-      alphaMode: 'premultiplied'
+      alphaMode: 'premultiplied',
     });
   
     // Create a vertex buffer from the cube data.
@@ -60,12 +75,13 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
     new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
     verticesBuffer.unmap();
   
-    const pipeline: GPURenderPipeline = await device.createRenderPipelineAsync({
+    const pipeline = device.createRenderPipeline({
+      layout: 'auto',
       vertex: {
         module: device.createShaderModule({
-          code: basicVertWGSL,
+          code: cubeWGSL,
         }),
-        entryPoint: 'main',
+        entryPoint: 'vertex_main',
         buffers: [
           {
             arrayStride: cubeVertexSize,
@@ -88,9 +104,9 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       },
       fragment: {
         module: device.createShaderModule({
-          code: sampleSelfWGSL,
+          code: cubeWGSL,
         }),
-        entryPoint: 'main',
+        entryPoint: 'fragment_main',
         targets: [
           {
             format: presentationFormat,
@@ -99,21 +115,13 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       },
       primitive: {
         topology: 'triangle-list',
-
-        // Backface culling since the cube is solid piece of geometry.
-        // Faces pointing away from the camera will be occluded by faces
-        // pointing toward the camera.
         cullMode: 'back',
       },
-
-      // Enable depth testing so that the fragment closest to the camera
-      // is rendered in front.
       depthStencil: {
         depthWriteEnabled: true,
         depthCompare: 'less',
         format: 'depth24plus',
       },
-      layout: 'auto'
     });
   
     const depthTexture = device.createTexture({
@@ -128,13 +136,28 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
   
-    // We will copy the frame's rendering results into this texture and
-    // sample it on the next frame.
-    const cubeTexture = device.createTexture({
-      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
-      format: presentationFormat,
-      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-    });
+    // Fetch the image and upload it into a GPUTexture.
+    let cubeTexture: GPUTexture;
+    {
+      const img: HTMLImageElement = document.createElement('img');
+      img.src = '../../assets/img/Di-3d.png';
+      await img.decode();
+      const imageBitmap: ImageBitmap = await createImageBitmap(img);;
+  
+      cubeTexture = device.createTexture({
+        size: [imageBitmap.width, imageBitmap.height, 1],
+        format: 'rgba8unorm',
+        usage:
+          GPUTextureUsage.TEXTURE_BINDING |
+          GPUTextureUsage.COPY_DST |
+          GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+      device.queue.copyExternalImageToTexture(
+        { source: imageBitmap },
+        { texture: cubeTexture },
+        [imageBitmap.width, imageBitmap.height]
+      );
+    }
   
     // Create a sampler with linear filtering for smooth interpolation.
     const sampler = device.createSampler({
@@ -182,66 +205,53 @@ export class GpuExamplesFractalCubeComponent implements OnInit {
     };
   
     const aspect = this.theCanvas.nativeElement.width / this.theCanvas.nativeElement.height;
-    const projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, (2 * Math.PI) / 5, aspect, 1, 100.0);
+    const projectionMatrix = mat4.perspective(
+      (2 * Math.PI) / 5,
+      aspect,
+      1,
+      100.0
+    );
+    const modelViewProjectionMatrix = mat4.create();
   
-    function getTransformationMatrix() {
-      const viewMatrix = mat4.create();
-      mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -4));
-      const now = Date.now() / 1000;
-      mat4.rotate(
-        viewMatrix,
-        viewMatrix,
-        1,
-        vec3.fromValues(Math.sin(now), Math.cos(now), 0)
-      );
-  
-      const modelViewProjectionMatrix = mat4.create();
-      mat4.multiply(modelViewProjectionMatrix, projectionMatrix, viewMatrix);
-  
+    function getModelViewProjectionMatrix(deltaTime: number) {
+      const camera = cameras[params.type];
+      const viewMatrix = camera.update(deltaTime, inputHandler());
+      mat4.multiply(projectionMatrix, viewMatrix, modelViewProjectionMatrix);
       return modelViewProjectionMatrix as Float32Array;
     }
   
+    let lastFrameMS = Date.now();
+  
     const frame = () => {
-      // Sample is no longer the active page.
+      const now = Date.now();
+      const deltaTime = (now - lastFrameMS) / 1000;
+      lastFrameMS = now;
+  
       if (!this.theCanvas.nativeElement) return;
   
-      const transformationMatrix = getTransformationMatrix();
+      const modelViewProjection = getModelViewProjectionMatrix(deltaTime);
       device.queue.writeBuffer(
         uniformBuffer,
         0,
-        transformationMatrix.buffer,
-        transformationMatrix.byteOffset,
-        transformationMatrix.byteLength
+        modelViewProjection.buffer,
+        modelViewProjection.byteOffset,
+        modelViewProjection.byteLength
       );
-  
-      const swapChainTexture = context.getCurrentTexture();
-      renderPassDescriptor.colorAttachments[0].view = swapChainTexture.createView();
+      renderPassDescriptor.colorAttachments[0].view = context
+        .getCurrentTexture()
+        .createView();
   
       const commandEncoder = device.createCommandEncoder();
       const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, uniformBindGroup);
       passEncoder.setVertexBuffer(0, verticesBuffer);
-      passEncoder.draw(cubeVertexCount, 1, 0, 0);
+      passEncoder.draw(cubeVertexCount);
       passEncoder.end();
-  
-      // Copy the rendering results from the swapchain into |cubeTexture|.
-      commandEncoder.copyTextureToTexture(
-        {
-          texture: swapChainTexture,
-        },
-        {
-          texture: cubeTexture,
-        },
-        [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
-      );
-  
       device.queue.submit([commandEncoder.finish()]);
   
       requestAnimationFrame(frame);
-    }
+    };
     requestAnimationFrame(frame);
   }
-
 }

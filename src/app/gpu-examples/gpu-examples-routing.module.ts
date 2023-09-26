@@ -18,6 +18,8 @@ import { GpuExamplesTextureCubeComponent } from './gpu-examples-texture-cube/gpu
 import { GpuExamplesTwoCubesComponent } from './gpu-examples-two-cubes/gpu-examples-two-cubes.component';
 import { GpuExamplesVideoUploadingComponent } from './gpu-examples-video-uploading/gpu-examples-video-uploading.component';
 import { GpuExamplesComponent } from './gpu-examples.component';
+import { GpuExamplesVideoUploadingWebCodecsComponent } from './gpu-examples-video-uploading-web-codecs/gpu-examples-video-uploading-web-codecs.component';
+import { GpuExamplesCamerasComponent } from './gpu-examples-cameras/gpu-examples-cameras.component';
 
 const routes: Routes = [  
   {
@@ -57,6 +59,10 @@ const routes: Routes = [
         component: GpuExamplesFractalCubeComponent
       },
       {
+        path: 'cameras',
+        component: GpuExamplesCamerasComponent
+      },
+      {
         path: 'cube-map',
         component: GpuExamplesCubeMapComponent
       },
@@ -71,6 +77,10 @@ const routes: Routes = [
       {
         path: 'video-uploading',
         component: GpuExamplesVideoUploadingComponent
+      },
+      {
+        path: 'videoUploadingWebCodecs',
+        component: GpuExamplesVideoUploadingWebCodecsComponent
       },
       {
         path: 'image-blur',

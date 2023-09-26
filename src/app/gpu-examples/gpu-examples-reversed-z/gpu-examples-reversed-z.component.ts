@@ -103,6 +103,8 @@ export class GpuExamplesReversedZComponent implements OnInit {
 
   gui: dat.GUI  = new dat.GUI({ autoPlace: false });
 
+  devicePixelRatio = window.devicePixelRatio || 1;
+
   constructor(private ele: ElementRef) { }
 
   ngOnInit(): void {
@@ -125,17 +127,13 @@ export class GpuExamplesReversedZComponent implements OnInit {
 
     const context = this.theCanvas.nativeElement.getContext('webgpu');
 
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    const presentationSize = [
-      this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
-      this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
-    ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * this.devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * this.devicePixelRatio;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'premultiplied'
     });
 
@@ -386,14 +384,14 @@ export class GpuExamplesReversedZComponent implements OnInit {
     });
 
     const depthTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: depthBufferFormat,
       usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
     });
     const depthTextureView = depthTexture.createView();
 
     const defaultDepthTexture = device.createTexture({
-      size: presentationSize,
+      size: [this.theCanvas.nativeElement.width, this.theCanvas.nativeElement.height],
       format: depthBufferFormat,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
@@ -572,7 +570,7 @@ export class GpuExamplesReversedZComponent implements OnInit {
     const viewMatrix = mat4.create();
     mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -12));
 
-    const aspect = (0.5 * presentationSize[0]) / presentationSize[1];
+    const aspect = (0.5 * this.theCanvas.nativeElement.width) / this.theCanvas.nativeElement.height;
     const projectionMatrix = mat4.create();
     perspectiveZO(projectionMatrix, (2 * Math.PI) / 5, aspect, 5, Infinity);
 
@@ -650,10 +648,10 @@ export class GpuExamplesReversedZComponent implements OnInit {
           colorPass.setBindGroup(0, uniformBindGroups[m]);
           colorPass.setVertexBuffer(0, verticesBuffer);
           colorPass.setViewport(
-            (presentationSize[0] * m) / 2,
+            (this.theCanvas.nativeElement.width * m) / 2,
             0,
-            presentationSize[0] / 2,
-            presentationSize[1],
+            this.theCanvas.nativeElement.width / 2,
+            this.theCanvas.nativeElement.height,
             0,
             1
           );
@@ -672,10 +670,10 @@ export class GpuExamplesReversedZComponent implements OnInit {
             depthPrePass.setBindGroup(0, uniformBindGroups[m]);
             depthPrePass.setVertexBuffer(0, verticesBuffer);
             depthPrePass.setViewport(
-              (presentationSize[0] * m) / 2,
+              (this.theCanvas.nativeElement.width * m) / 2,
               0,
-              presentationSize[0] / 2,
-              presentationSize[1],
+              this.theCanvas.nativeElement.width / 2,
+              this.theCanvas.nativeElement.height,
               0,
               1
             );
@@ -694,10 +692,10 @@ export class GpuExamplesReversedZComponent implements OnInit {
             precisionErrorPass.setBindGroup(1, depthTextureBindGroup);
             precisionErrorPass.setVertexBuffer(0, verticesBuffer);
             precisionErrorPass.setViewport(
-              (presentationSize[0] * m) / 2,
+              (this.theCanvas.nativeElement.width * m) / 2,
               0,
-              presentationSize[0] / 2,
-              presentationSize[1],
+              this.theCanvas.nativeElement.width / 2,
+              this.theCanvas.nativeElement.height,
               0,
               1
             );
@@ -718,10 +716,10 @@ export class GpuExamplesReversedZComponent implements OnInit {
             depthPrePass.setBindGroup(0, uniformBindGroups[m]);
             depthPrePass.setVertexBuffer(0, verticesBuffer);
             depthPrePass.setViewport(
-              (presentationSize[0] * m) / 2,
+              (this.theCanvas.nativeElement.width * m) / 2,
               0,
-              presentationSize[0] / 2,
-              presentationSize[1],
+              this.theCanvas.nativeElement.width / 2,
+              this.theCanvas.nativeElement.height,
               0,
               1
             );
@@ -736,10 +734,10 @@ export class GpuExamplesReversedZComponent implements OnInit {
             depthTextureQuadPass.setPipeline(textureQuadPassPipline);
             depthTextureQuadPass.setBindGroup(0, depthTextureBindGroup);
             depthTextureQuadPass.setViewport(
-              (presentationSize[0] * m) / 2,
+              (this.theCanvas.nativeElement.width * m) / 2,
               0,
-              presentationSize[0] / 2,
-              presentationSize[1],
+              this.theCanvas.nativeElement.width / 2,
+              this.theCanvas.nativeElement.height,
               0,
               1
             );

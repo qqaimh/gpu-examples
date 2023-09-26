@@ -1,14 +1,14 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
-import fullscreenTexturedQuadWGSL from './shaders/fullscreenTexturedQuad.wgsl';
-import sampleExternalTextureWGSL from './shaders/sampleExternalTexture.wgsl';
+import fullscreenTexturedQuadWGSL from '../gpu-examples-video-uploading/shaders/fullscreenTexturedQuad.wgsl';
+import sampleExternalTextureWGSL from '../gpu-examples-video-uploading/shaders/sampleExternalTexture.wgsl';
 
 @Component({
-  selector: 'app-gpu-examples-video-uploading',
-  templateUrl: './gpu-examples-video-uploading.component.html',
-  styleUrls: ['./gpu-examples-video-uploading.component.scss']
+  selector: 'gpu-examples-gpu-examples-video-uploading-web-codecs',
+  templateUrl: './gpu-examples-video-uploading-web-codecs.component.html',
+  styleUrls: ['./gpu-examples-video-uploading-web-codecs.component.scss']
 })
-export class GpuExamplesVideoUploadingComponent implements OnInit {
+export class GpuExamplesVideoUploadingWebCodecsComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
   devicePixelRatio = window.devicePixelRatio || 1;
@@ -94,6 +94,8 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
       // Sample is no longer the active page.
       if (!this.theCanvas.nativeElement) return;
 
+      const videoFrame = new VideoFrame(video);
+
       const uniformBindGroup: GPUBindGroup = device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0),
         entries: [
@@ -104,7 +106,7 @@ export class GpuExamplesVideoUploadingComponent implements OnInit {
           {
             binding: 2,
             resource: device.importExternalTexture({
-              source: video,
+              source: videoFrame,
             }),
           },
         ],

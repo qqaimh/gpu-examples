@@ -30,12 +30,13 @@ export class GpuExamplesHelloTriangleMsaaComponent implements OnInit {
       this.theCanvas.nativeElement.clientWidth * devicePixelRatio,
       this.theCanvas.nativeElement.clientHeight * devicePixelRatio,
     ];
+    this.theCanvas.nativeElement.width = this.theCanvas.nativeElement.clientWidth * devicePixelRatio;
+    this.theCanvas.nativeElement.height = this.theCanvas.nativeElement.clientHeight * devicePixelRatio;
     const presentationFormat: GPUTextureFormat = navigator.gpu.getPreferredCanvasFormat();
 
     context.configure({
       device,
       format: presentationFormat,
-      size: presentationSize,
       alphaMode: 'opaque',
     });
 

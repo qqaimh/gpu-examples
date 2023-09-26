@@ -21,6 +21,8 @@ import { GpuExamplesShadowMappingComponent } from './gpu-examples-shadow-mapping
 import { GpuExamplesReversedZComponent } from './gpu-examples-reversed-z/gpu-examples-reversed-z.component';
 import { GpuExamplesDeferredRenderingComponent } from './gpu-examples-deferred-rendering/gpu-examples-deferred-rendering.component';
 import { GpuExamplesParticlesComponent } from './gpu-examples-particles/gpu-examples-particles.component';
+import { GpuExamplesVideoUploadingWebCodecsComponent } from './gpu-examples-video-uploading-web-codecs/gpu-examples-video-uploading-web-codecs.component';
+import { GpuExamplesCamerasComponent } from './gpu-examples-cameras/gpu-examples-cameras.component';
 
 
 @NgModule({
@@ -42,7 +44,9 @@ import { GpuExamplesParticlesComponent } from './gpu-examples-particles/gpu-exam
     GpuExamplesShadowMappingComponent,
     GpuExamplesReversedZComponent,
     GpuExamplesDeferredRenderingComponent,
-    GpuExamplesParticlesComponent
+    GpuExamplesParticlesComponent,
+    GpuExamplesVideoUploadingWebCodecsComponent,
+    GpuExamplesCamerasComponent
   ],
   imports: [
     CommonModule,
