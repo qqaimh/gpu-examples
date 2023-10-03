@@ -28,10 +28,10 @@ export class GpuExamplesShadowMappingComponent implements OnInit {
 
   // This example shows how to sample from a depth texture to render shadows.
   async draw() {
+    if (!this.theCanvas.nativeElement) return;
+    
     const adapter: GPUAdapter = await navigator.gpu.requestAdapter();
     const device: GPUDevice = await adapter.requestDevice();
-
-    if (!this.theCanvas.nativeElement) return;
 
     const context: GPUCanvasContext = (this.theCanvas.nativeElement as HTMLCanvasElement).getContext('webgpu');
 

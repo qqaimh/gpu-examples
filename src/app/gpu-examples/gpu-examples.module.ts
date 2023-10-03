@@ -23,6 +23,12 @@ import { GpuExamplesDeferredRenderingComponent } from './gpu-examples-deferred-r
 import { GpuExamplesParticlesComponent } from './gpu-examples-particles/gpu-examples-particles.component';
 import { GpuExamplesVideoUploadingWebCodecsComponent } from './gpu-examples-video-uploading-web-codecs/gpu-examples-video-uploading-web-codecs.component';
 import { GpuExamplesCamerasComponent } from './gpu-examples-cameras/gpu-examples-cameras.component';
+import { GpuExamplesABufferComponent } from './gpu-examples-abuffer/gpu-examples-abuffer.component';
+import { GpuExamplesWorkerComponent } from './gpu-examples-worker/gpu-examples-worker.component';
+import { GpuExamplesRenderBundlesComponent } from './gpu-examples-render-bundles/gpu-examples-render-bundles.component';
+import { GpuExamplesSamplerParametersComponent } from './gpu-examples-sampler-parameters/gpu-examples-sampler-parameters.component';
+import { GpuExamplesCornellComponent } from './gpu-examples-cornell/gpu-examples-cornell.component';
+import { GpuExamplesGameOfLifeComponent } from './gpu-examples-game-of-life/gpu-examples-game-of-life.component';
 
 
 @NgModule({
@@ -46,7 +52,13 @@ import { GpuExamplesCamerasComponent } from './gpu-examples-cameras/gpu-examples
     GpuExamplesDeferredRenderingComponent,
     GpuExamplesParticlesComponent,
     GpuExamplesVideoUploadingWebCodecsComponent,
-    GpuExamplesCamerasComponent
+    GpuExamplesCamerasComponent,
+    GpuExamplesABufferComponent,
+    GpuExamplesWorkerComponent,
+    GpuExamplesRenderBundlesComponent,
+    GpuExamplesSamplerParametersComponent,
+    GpuExamplesCornellComponent,
+    GpuExamplesGameOfLifeComponent
   ],
   imports: [
     CommonModule,

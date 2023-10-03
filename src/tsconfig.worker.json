@@ -12,6 +12,7 @@
   },
   
   "files": [
+    "./app/gpu-examples/gpu-examples-worker/worker.js",
     "./app/web-texture-tool/workers/basis/basis-worker.js",
     "./app/web-texture-tool/workers/ktx/ktx-worker.js",
     "./app/web-texture-tool/workers/dds-worker.js",

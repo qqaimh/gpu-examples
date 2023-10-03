@@ -65,6 +65,10 @@ export class GpuExamplesComponent implements OnInit {
       url: './videoUploadingWebCodecs',
     },
     {
+      name: 'samplerParameters',
+      url: './sampler-parameters',
+    },
+    {
       name: 'imageBlur',
       url: './image-blur',
     },
@@ -83,6 +87,26 @@ export class GpuExamplesComponent implements OnInit {
     {
       name: 'particles',
       url: './particles',
+    },
+    {
+      name: 'Cornell',
+      url: './Cornell',
+    },
+    {
+      name: 'GameOfLife',
+      url: './GameOfLife',
+    },
+    {
+      name: 'renderBundles',
+      url: './renderBundles',
+    },
+    {
+      name: 'worker',
+      url: './worker',
+    },
+    {
+      name: 'A-buffer',
+      url: './a-buffer',
     },
   ];
 

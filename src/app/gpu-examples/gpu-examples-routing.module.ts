@@ -20,6 +20,12 @@ import { GpuExamplesVideoUploadingComponent } from './gpu-examples-video-uploadi
 import { GpuExamplesComponent } from './gpu-examples.component';
 import { GpuExamplesVideoUploadingWebCodecsComponent } from './gpu-examples-video-uploading-web-codecs/gpu-examples-video-uploading-web-codecs.component';
 import { GpuExamplesCamerasComponent } from './gpu-examples-cameras/gpu-examples-cameras.component';
+import { GpuExamplesABufferComponent } from './gpu-examples-abuffer/gpu-examples-abuffer.component';
+import { GpuExamplesWorkerComponent } from './gpu-examples-worker/gpu-examples-worker.component';
+import { GpuExamplesRenderBundlesComponent } from './gpu-examples-render-bundles/gpu-examples-render-bundles.component';
+import { GpuExamplesSamplerParametersComponent } from './gpu-examples-sampler-parameters/gpu-examples-sampler-parameters.component';
+import { GpuExamplesCornellComponent } from './gpu-examples-cornell/gpu-examples-cornell.component';
+import { GpuExamplesGameOfLifeComponent } from './gpu-examples-game-of-life/gpu-examples-game-of-life.component';
 
 const routes: Routes = [  
   {
@@ -83,6 +89,10 @@ const routes: Routes = [
         component: GpuExamplesVideoUploadingWebCodecsComponent
       },
       {
+        path: 'sampler-parameters',
+        component: GpuExamplesSamplerParametersComponent
+      },
+      {
         path: 'image-blur',
         component: GpuExamplesImageBlurComponent
       },
@@ -101,6 +111,26 @@ const routes: Routes = [
       {
         path: 'particles',
         component: GpuExamplesParticlesComponent
+      },
+      {
+        path: 'Cornell',
+        component: GpuExamplesCornellComponent
+      },
+      {
+        path: 'GameOfLife',
+        component: GpuExamplesGameOfLifeComponent
+      },
+      {
+        path: 'renderBundles',
+        component: GpuExamplesRenderBundlesComponent
+      },
+      {
+        path: 'worker',
+        component: GpuExamplesWorkerComponent
+      },
+      {
+        path: 'a-buffer',
+        component: GpuExamplesABufferComponent
       },
       {
         path: '',

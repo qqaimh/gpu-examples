@@ -12,7 +12,7 @@ import { cubePositionOffset, cubeUVOffset, cubeVertexArray, cubeVertexCount, cub
   templateUrl: './gpu-examples-cameras.component.html',
   styleUrls: ['./gpu-examples-cameras.component.scss']
 })
-export class GpuExamplesCamerasComponent  implements OnInit {
+export class GpuExamplesCamerasComponent implements OnInit {
   @ViewChild('theCanvas', {static: true}) theCanvas!: ElementRef;
 
   devicePixelRatio = window.devicePixelRatio || 1;
