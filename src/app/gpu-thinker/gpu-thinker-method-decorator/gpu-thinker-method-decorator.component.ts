@@ -23,4 +23,29 @@ export class GpuThinkerMethodDecoratorComponent implements OnInit, OnDestroy {
     console.log(2222)
   }
 
+  openTab(event: MouseEvent) {
+    const image_window: Window = window.open('', '_blank')
+    image_window.document.writeln(`
+    <!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<script>
+function myFunctionaa(){
+  window.history.pushState({},'gpu exxamples', \`${window.location.origin}/ggg.png\`);
+}
+
+window.onload  = myFunctionaa()
+</script>
+</head>
+
+<body>
+<h1>Hello World!</h1>
+</body>
+
+</html>
+  `);
+  }
+
 }
