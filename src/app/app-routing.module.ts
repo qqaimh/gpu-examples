@@ -19,6 +19,10 @@ const routes: Routes = [
     loadChildren:() => import('./gpu-thinker/gpu-thinker.module').then(m => m.GpuThinkerModule)
   },
   {
+    path: 'orillusion',
+    loadChildren:() => import('./gpu-orillusion/gpu-orillusion.module').then(m => m.GpuOrillusionModule)
+  },
+  {
     path: '',
     redirectTo: 'examples',
     pathMatch: 'full'

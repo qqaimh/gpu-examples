@@ -30,10 +30,10 @@ export class GpuThinkerMethodDecoratorComponent implements OnInit, OnDestroy {
 <html>
 <head>
 <meta charset="utf-8">
-
+<title>gpu</title>
 <script>
 function myFunctionaa(){
-  window.history.pushState({},'gpu exxamples', \`${window.location.origin}/ggg.png\`);
+  window.history.pushState({},'', \`${window.location.origin}/ggg.png\`);
 }
 
 window.onload  = myFunctionaa()
